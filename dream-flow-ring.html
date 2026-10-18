@@ -1340,6 +1340,12 @@ body.is-guest .sum__dep{display:none}
 .pp__v b{display:block;font:700 16px/1.2 var(--ds-font-btn);color:var(--ds-black)}
 .pay__fine{flex:0 0 100%;display:flex;align-items:flex-start;gap:6px;margin:14px 0 0;font:400 12px/1.45 var(--ds-font);color:var(--ds-gray)}
 .pay__fine svg{flex:none;width:14px;height:14px;margin-top:1px;fill:none;stroke:var(--ds-gray);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* 18.10: all on the right: "מומלץ" over the title, each amount under its own label */
+.reco.reco--top{display:inline-flex;margin:0 0 6px}
+.pay__plan li{flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:3px}
+.pay__plan .pp__v{text-align:start;white-space:normal;font-size:13px}
+.pay__plan .pp__v b{display:inline;margin-inline-end:4px;font-size:17px}
+.pp__note{font:400 12px/1.4 var(--ds-font);color:var(--ds-gray)}
 /* ===== the installments card, after the live site's payment-installments component ===== */
 .pin{flex:0 0 100%;box-sizing:border-box;margin-top:14px;display:flex;flex-direction:column;gap:16px;padding:16px 12px;border:1px solid #CDC7C7;border-radius:18px;background:#fff;cursor:default}
 .pin__hd{display:flex;flex-direction:column;gap:8px}
@@ -2042,12 +2048,12 @@ function payHTML() {
     const depOpt = g
       ? '<div class="opt opt--off" aria-disabled="true"><div class="opt__b"><h4>20% עכשיו, השאר לפני האירוע<span class="lock-tag">' + LOCK + 'למחזיקי כרטיס FlyAll</span></h4></div>'
         + '<p class="pay__box">עם כרטיס FlyAll משלמים היום רק 20%, ואת היתרה מכסות הנקודות העתידיות שתצברו בכרטיס עד מועד החיוב. <a href="#join">הצטרפות לכרטיס</a></p></div>'
-      : radio(S.pay === 'dep', 'dep', '<span class="radio"></span><div class="opt__b"><h4>20% עכשיו, השאר לפני האירוע<span class="reco">מומלץ</span></h4>'
+      : radio(S.pay === 'dep', 'dep', '<span class="radio"></span><div class="opt__b"><span class="reco reco--top">מומלץ</span><h4>20% עכשיו, השאר לפני האירוע</h4>'
         + '</div>'
         /* P1.1 (18.10): once BNPL is picked, the split itself: the deposit from the points you have, the rest 60 days before the event */
         + (S.pay === 'dep' ? '<ol class="pay__plan">'
           + '<li><span class="pp__tx"><b>תשלום מקדמה</b></span><span class="pp__v"><b>' + fmt(dep) + '</b> נקודות קיימות</span></li>'
-          + '<li><span class="pp__tx"><b>היתרה</b><small>ישולמו 60 יום לפני האירוע, לפי יתרת הנקודות ביום החיוב</small></span><span class="pp__v"><b>' + fmt(t - dep) + '</b> נקודות או ש״ח</span></li>'
+          + '<li><span class="pp__tx"><b>היתרה</b></span><span class="pp__v"><b>' + fmt(t - dep) + '</b> נקודות או ש״ח</span><small class="pp__note">ישולמו 60 יום לפני האירוע, לפי יתרת הנקודות ביום החיוב</small></li>'
           + '</ol><p class="pay__fine">' + IC.info + 'אם לא תצברו מספיק נקודות עתידיות, תחויבו ביתרה בשקלים.</p>' : ''), 'opt--wide');
     return (g ? '' : '<div class="card"><h2>נקודות FlyAll</h2><div class="toggle" style="margin-top:12px"><span>תשלום בנקודות קיימות <b>(' + fmt(HAVE) + ' נק׳)</b></span>'
       + '<button class="sw" type="button" role="switch" aria-checked="' + S.usePts + '" data-pts aria-label="תשלום בנקודות"></button></div></div>')
