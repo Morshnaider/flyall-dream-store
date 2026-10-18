@@ -27,6 +27,8 @@ body.is-desk .phone iframe{width:100%;height:100%;border-radius:0}
 .view button[aria-pressed="true"]{background:#1B5ECE;color:#fff}
 .view button:focus-visible{outline:2px solid #1B5ECE;outline-offset:2px}
 body.is-desk .view{top:auto;bottom:84px;right:20px}   /* above the booking flow's bottom bar */
+/* 18.10: opened on a real phone the site simply fills the screen, with no phone frame and no switch over it */
+body.is-phone .view{display:none}
 </style>
 </head>
 <body>
@@ -54,7 +56,11 @@ body.is-desk .view{top:auto;bottom:84px;right:20px}   /* above the booking flow'
   addEventListener('resize', fit);
   let v = new URLSearchParams(location.search).get('view');
   if (!v) { try { v = localStorage.getItem(KEY); } catch (e) {} }
-  set(v === 'desktop' ? 'desktop' : 'mobile');
+  /* a phone-sized screen is the phone itself: full screen, nothing to switch */
+  if (matchMedia('(max-width: 600px)').matches) {
+    document.body.classList.add('is-phone', 'is-desk');
+    fit();
+  } else set(v === 'desktop' ? 'desktop' : 'mobile');
 </script>
 </body>
 </html>

@@ -1920,6 +1920,11 @@ html[data-bnpl="off"] body.is-guest .xp__deal,html[data-bnpl="off"][data-points=
 
 /* desktop has no cover copy (the panel sits beside the video), so the panel keeps the checks and the description there */
 .reel__detail > .rd__inc{display:flex}
+/* 18.10: iPhone (WebKit) painted only the hint's own animated layer over the film and lost the rest of the copy
+   until a scroll set an inline opacity; the copy and the crest now keep a layer of their own over the video */
+.reel__copy,.reel__crest{transform:translate3d(0,0,0) scale(.7);will-change:transform,opacity;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.reel__slide.live .reel__copy,.reel__slide.live .reel__crest{transform:translate3d(0,0,0)}
+@media (prefers-reduced-motion: reduce){ .reel__copy,.reel__crest{transform:translate3d(0,0,0)} }
 </style>
 </head>
 <body data-opt="D">

@@ -1924,6 +1924,11 @@ body.cl--open .who{display:none!important}
   animation:lmeHop 3s cubic-bezier(.3,.7,.4,1) infinite;transform-origin:50% 100%}
 @keyframes lmeHop{0%,50%,100%{transform:translateY(0)}12%{transform:translateY(-4px) rotate(-6deg)}24%{transform:translateY(0) scale(1.06,.94)}34%{transform:translateY(-1px)}}
 @media (prefers-reduced-motion:reduce){ .lme__calc svg{animation:none} }
+/* 18.10: iPhone (WebKit) painted only the hint's own animated layer over the film and lost the rest of the copy
+   until a scroll set an inline opacity; the copy and the crest now keep a layer of their own over the video */
+.reel__copy,.reel__crest{transform:translate3d(0,0,0) scale(.7);will-change:transform,opacity;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.reel__slide.live .reel__copy,.reel__slide.live .reel__crest{transform:translate3d(0,0,0)}
+@media (prefers-reduced-motion: reduce){ .reel__copy,.reel__crest{transform:translate3d(0,0,0)} }
 </style>
 </head>
 <body data-opt="D">
