@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
+<script>
+/* 18.10: the clean version (?clean=1): no demo switches, one story — signed in, earning points, BNPL on.
+   It holds for the whole visit in this tab; ?clean=0 brings the switches back */
+(function(){ try {
+  var q = new URLSearchParams(location.search).get('clean');
+  if (q === '1') sessionStorage.setItem('flyall-clean', '1');
+  if (q === '0') sessionStorage.removeItem('flyall-clean');
+  if (sessionStorage.getItem('flyall-clean')) {
+    document.documentElement.classList.add('clean');
+    localStorage.setItem('flyall-who', 'user'); localStorage.setItem('flyall-points', 'earn'); localStorage.setItem('flyall-bnpl', 'on');
+  }
+} catch (e) {} })();
+</script>
+<style>html.clean .who{display:none!important}</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>FlyAll — כל התוספות</title>

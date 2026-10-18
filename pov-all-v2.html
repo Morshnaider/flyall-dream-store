@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
+<script>
+/* 18.10: the clean version (?clean=1): no demo switches, one story — signed in, earning points, BNPL on.
+   It holds for the whole visit in this tab; ?clean=0 brings the switches back */
+(function(){ try {
+  var q = new URLSearchParams(location.search).get('clean');
+  if (q === '1') sessionStorage.setItem('flyall-clean', '1');
+  if (q === '0') sessionStorage.removeItem('flyall-clean');
+  if (sessionStorage.getItem('flyall-clean')) {
+    document.documentElement.classList.add('clean');
+    localStorage.setItem('flyall-who', 'user'); localStorage.setItem('flyall-points', 'earn'); localStorage.setItem('flyall-bnpl', 'on');
+  }
+} catch (e) {} })();
+</script>
+<style>html.clean .who{display:none!important}</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>FlyAll — כל החוויות</title>
@@ -2075,7 +2089,7 @@ const CAT = {
 };
 document.title = 'FlyAll — ' + CAT.t;
 const ARC   = CAT.ev;
-const CTA_LABEL = 'שמרו לי מקום';
+const CTA_LABEL = 'מזמינים עכשיו';
 const ARROW    = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>';
 const ARROW_UL = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7M7 7h9M7 7v9"/></svg>';
 
@@ -2764,10 +2778,10 @@ const ART_FLY = (() => {
 })();
 
 const HOW = [
-  { art: ART_PICK, tone: 'blue', h: 'בוחרים חלום ומשריינים',
+  { art: ART_PICK, tone: 'blue', h: 'בוחרים חלום ומזמינים',
     p: ['חופשה, הופעה או משחק שתמיד רציתם!',
-        'בוחרים מועד ומשריינים במקדמה'],
-    note: ['20% מקדמה', 'מהסכום הסופי, והחלום שמור לכם למועד שבחרתם'] },
+        'בוחרים מועד, מזמינים עכשיו ומשלמים אחר כך'],
+    note: ['20% מקדמה', 'מהסכום הסופי, והחלום מוזמן לכם למועד שבחרתם'] },
   { art: ART_CARD, tone: 'purple', h: 'צוברים נקודות עד לחלום',
     p: ['משתמשים בכרטיס אשראי FlyAll וצוברים',
         'נקודות עד המועד שנקבע'],
@@ -3120,7 +3134,7 @@ const slides = ARC.map(d => {
     + '<p class="rd__about">' + d.about + '</p>'
     + dealHTML(d)));
 
-  const act = el('div','reel__act','<button class="rd__go ds-btn ds-btn--primary ds-btn--block" type="button">משריינים עכשיו</button>');
+  const act = el('div','reel__act','<button class="rd__go ds-btn ds-btn--primary ds-btn--block" type="button">מזמינים עכשיו</button>');
   if (HAVE) act.insertBefore(el('div','rd__have', HAVE), act.firstChild);   /* shown by the points switch */
   const hint = el('div','reel__hint', '<i></i><span>גללו לגלות עוד</span>');
   sl.querySelector('.reel__copy').prepend(hint);   /* sits over the title, rides its entrance */
@@ -3152,8 +3166,8 @@ function howFor(d){
   const left = Math.max(0, price - BALANCE);
   const kind = /Tomorrowland/.test(d.event) ? 'הפסטיבל' : /סלין דיון|אואזיס/.test(d.event) ? 'ההופעה' : 'המשחק';
   return [
-    { h: 'משריינים את ' + name, p: [[city, d.date].filter(Boolean).join(' · '), 'בוחרים מועד ומשריינים במקדמה'],
-      note: [nfmt(dep) + ' נקודות קיימות', 'מקדמה של 20%, והחלום שמור לכם למועד שבחרתם'] },
+    { h: 'מזמינים את ' + name, p: [[city, d.date].filter(Boolean).join(' · '), 'בוחרים מועד, מזמינים עכשיו ומשלמים אחר כך'],
+      note: [nfmt(dep) + ' נקודות קיימות', 'מקדמה של 20%, והחלום מוזמן לכם למועד שבחרתם'] },
     { h: left ? 'צוברים עוד ' + nfmt(left) + ' נקודות עד ' + kind : HOW[1].h, p: HOW[1].p, note: HOW[1].note },
     { h: 'משלימים ' + nfmt(price - dep) + ' נקודות ומגשימים', p: HOW[2].p,
       note: ['60 יום לפני ' + kind, HOW[2].note[1]] }

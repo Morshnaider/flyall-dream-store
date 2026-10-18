@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
+<script>
+/* 18.10: the clean version (?clean=1): no demo switches, one story — signed in, earning points, BNPL on.
+   It holds for the whole visit in this tab; ?clean=0 brings the switches back */
+(function(){ try {
+  var q = new URLSearchParams(location.search).get('clean');
+  if (q === '1') sessionStorage.setItem('flyall-clean', '1');
+  if (q === '0') sessionStorage.removeItem('flyall-clean');
+  if (sessionStorage.getItem('flyall-clean')) {
+    document.documentElement.classList.add('clean');
+    localStorage.setItem('flyall-who', 'user'); localStorage.setItem('flyall-points', 'earn'); localStorage.setItem('flyall-bnpl', 'on');
+  }
+} catch (e) {} })();
+</script>
+<style>html.clean .who{display:none!important}</style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>FlyAll — הזמנת החלום · טבעת</title>
@@ -1969,7 +1983,7 @@ const STEP_UI = [
       + '<svg class="booked__sky" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bkG" gradientUnits="userSpaceOnUse" x1="380" y1="0" x2="20" y2="0"><stop offset="0" stop-color="#1B5ECE"/><stop offset=".5" stop-color="#824AEA"/><stop offset="1" stop-color="#F63DE4"/></linearGradient></defs>'
       + '<path class="booked__arc" d="M380 104 C 300 0, 100 0, 20 104"/></svg>'
       + '<span class="booked__plane" aria-hidden="true"><svg><use href="#plane"/></svg></span>'
-      + '<span class="booked__ic">' + IC.check + '</span><h2>' + (isGuest() ? (S.f.fn || 'דניאל') : 'ענת') + ', החלום שמור לך!</h2>'
+      + '<span class="booked__ic">' + IC.check + '</span><h2>' + (isGuest() ? (S.f.fn || 'דניאל') : 'ענת') + ', החלום מוזמן לך!</h2>'
       + '<p class="sub">הזמנה מס׳ FA-270514 · אישור נשלח ל־' + (S.f.mail || 'המייל שלך') + '</p>'
       + '<ul class="booked__list"><li><span>' + (S.pay === 'dep' ? 'מקדמה של ' + fmt(dep) + ' נק׳' : fmt(t) + ' נק׳, התשלום המלא') + '</span><b>שולם היום</b></li>'
       + (S.pay === 'dep' ? '<li><span>היתרה של ' + fmt(t - dep) + ' נק׳, מנקודות עתידיות ובכסף</span><b>עד 14.3.2027</b></li>' : '')

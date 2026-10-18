@@ -40,7 +40,9 @@ body.is-phone .view{display:none}
 <script>
   const phone = document.querySelector('.phone'), view = document.querySelector('.view');
   /* the open link is cached for 10 minutes: the site inside always loads fresh, so an update shows on the next visit */
-  phone.querySelector('iframe').src = 'pov-reels-v2.html?v=' + Date.now();
+  /* ?clean=1 (or 0) passes on to the site inside: the version without the demo switches */
+  const clean = new URLSearchParams(location.search).get('clean');
+  phone.querySelector('iframe').src = 'pov-reels-v2.html?v=' + Date.now() + (clean ? '&clean=' + clean : '');
   const KEY = 'flyall-view';
   /* a real 390×844 screen inside; centred on the window, and scaled so all of it — frame included — fits with a margin */
   const fit = () => {
