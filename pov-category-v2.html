@@ -1720,13 +1720,17 @@ small.ils{font-size:max(12px,.8em)}
 .xd-t__d em{font:500 12px/1.2 var(--ds-font);font-style:normal;color:#E3CCFF;white-space:nowrap}
 .xd-pick{flex-wrap:wrap}
 .xd-pick__ev{flex-basis:100%;color:#E3CCFF;font-weight:500}
-/* 18.10: each window's own price — the dates can cost differently */
+/* 18.10: the window's weekdays; a tap on a window shows its own price below, in points and shekels */
 .xd-t__r{display:flex;align-items:baseline;gap:7px}
 .xd-t__dow{font:500 13px/1 var(--ds-font);color:rgba(255,255,255,.75);white-space:nowrap}
-.xd-t__p{display:flex;flex-direction:column;align-items:center;gap:4px}
-.xd-t .xd-t__pts{font:700 14px/1 var(--ds-font-btn);color:#fff;direction:rtl;white-space:nowrap}
-.xd-t.on .xd-t__pts{color:#E3CCFF}
-@media (max-width:1023px){ .xd-t__d{align-items:flex-start} .xd-t__p{align-items:flex-end} .xd-row .xd-t .xd-t__pts{font-size:16px} }
+.xd-t__p{display:flex;flex-direction:column;align-items:center}
+.xd-pick{flex-wrap:nowrap;align-items:center}
+.xd-pick__l{display:flex;flex-direction:column;gap:5px;min-width:0}
+.xd-pick__l .xd-pick__ev{flex-basis:auto}
+.xd-pick .xd-pick__p{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
+.xd-pick .xd-pick__p b{margin:0;font:700 24px/1 var(--ds-font-btn);color:#fff}
+.xd-pick .xd-pick__p small{margin:0;font:400 13px/1 var(--ds-font);color:rgba(255,255,255,.7)}
+@media (max-width:1023px){ .xd-t__d{align-items:flex-start} .xd-t__p{align-items:flex-end} }
 
 /* ===== X1 + X2 (18.10, design-change log) =====
    X1.1: no "משריינים עכשיו" CTA (neither in the deal nor sticky) and no "יש לך כעת": the dates show as soon as the experience opens.
@@ -3157,7 +3161,7 @@ function dealHTML(d){
     +     '<h4 class="xd-h">מתי בא לכם <b>לטוס?</b></h4>'
     +     '<div class="xd-row">' + xd.map(([a, b, p, e], i) => '<button type="button" class="xd-t' + (p ? '' : ' out') + '" data-xd="' + i + '"' + (p ? '' : ' disabled') + '>'
     +       '<span class="xd-t__d"><span class="xd-t__r"><b dir="ltr">' + a + '–' + b + '</b><span class="xd-t__dow">' + dows(a, b) + '</span></span>' + (e ? '<em>' + evLbl(d) + ' · <bdi>' + evDay(e) + '</bdi></em>' : '') + '</span>'
-    +       '<span class="xd-t__p">' + (p ? '<b class="xd-t__pts">' + nfmt(p) + ' נק׳</b>' : '') + '<small>' + (p ? nights(a, b) + ' לילות' : 'אזל') + '</small></span></button>').join('') + '</div>'
+    +       '<span class="xd-t__p"><small>' + (p ? nights(a, b) + ' לילות' : 'אזל') + '</small></span></button>').join('') + '</div>'
     +     '<p class="xd-pick"></p>'
     +     '<div class="xd-foot"><a class="xd-go" href="dream-flow-ring.html#1" aria-disabled="true">לבחירת החבילה</a></div></div>'
     + '</section>'
@@ -3203,7 +3207,9 @@ function wireDeal(sl, d){
     const t = e.target.closest('[data-xd]'); if (!t || t.disabled) return;
     const [a, b, p, evd] = xd[+t.dataset.xd];
     xin.querySelectorAll('[data-xd]').forEach(n => n.classList.toggle('on', n === t));
-    xin.querySelector('.xd-pick').innerHTML = '<span><bdi dir="ltr">' + a + '–' + b + '</bdi> (' + dows(a, b) + ') · ' + nights(a, b) + ' לילות' + (city ? ' ב' + city.replace(/^ב/, '') : '') + '</span>' + (evd ? '<span class="xd-pick__ev">' + evLbl(d) + ' · <bdi>' + evDay(evd) + '</bdi></span>' : '');   /* 18.10: no price again here: the experience said it a moment ago */
+    /* 18.10: the chosen window's own price, in points and shekels as everywhere else (a point = ₪1) */
+    xin.querySelector('.xd-pick').innerHTML = '<span class="xd-pick__l"><span><bdi dir="ltr">' + a + '–' + b + '</bdi> (' + dows(a, b) + ') · ' + nights(a, b) + ' לילות' + (city ? ' ב' + city.replace(/^ב/, '') : '') + '</span>' + (evd ? '<span class="xd-pick__ev">' + evLbl(d) + ' · <bdi>' + evDay(evd) + '</bdi></span>' : '') + '</span>'
+      + '<span class="xd-pick__p"><b>' + nfmt(p) + ' נק׳</b><small>(₪' + nfmt(p) + ')</small></span>';   /* 18.10: no price again here: the experience said it a moment ago */
     go.removeAttribute('aria-disabled');
     /* 18.10: the booking flow opens on this dream: its name, city, dates, price and picture */
     const [ttl, place] = d.event.split(' · '), stop = (String((d.dates || [])[+t.dataset.xd] || '').split(' · ')[1] ? String(d.dates[+t.dataset.xd]).split(' · ')[0] : '');
