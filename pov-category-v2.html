@@ -2008,6 +2008,19 @@ body.cl--open .who{display:none!important}
   .reel.how-open .reel__nav{opacity:0;pointer-events:none}
   .reel.scrolled .reel__nav{opacity:0;pointer-events:none}   /* once the detail is up, they step aside */
 }
+/* 18.10: the points card on a phone: each line on one line. A smaller ring, type that follows the width,
+   and the calculator as a small round button in the corner instead of a reserved column */
+@media (max-width:1023px){
+  .lead__me.lme{gap:12px;padding:14px 14px 14px 14px;padding-inline-end:46px}
+  .lme__ring{width:58px;height:58px}
+  .lme__n{font-size:14px}
+  .lme__tx b{font-size:clamp(14px,4.3vw,17px);white-space:nowrap}
+  .lme__tx small{font-size:clamp(12px,3.55vw,14px);white-space:nowrap}
+  .lme__tx small.lme__pp{font-size:12px}
+  .lme__calc{top:50%;bottom:auto;transform:translateY(-50%);inset-inline-end:10px;width:32px;height:32px}
+  .lme__calc:hover{transform:translateY(-50%) scale(1.06)}
+  .lme__calc svg{width:17px;height:17px}
+}
 </style>
 </head>
 <body data-opt="D">
@@ -2253,7 +2266,7 @@ function buildArc(){
     me.querySelector('.lme__have').textContent = have.toLocaleString('en-US');
     me.querySelector('.lme__left').innerHTML = left
       ? 'עוד <em>' + left.toLocaleString('en-US') + ' נק׳</em> לחוויה המשתלמת ביותר'
-      : (n => 'הנקודות שלכם מכסות <em class="ok">' + (n === 1 ? 'חבילה מלאה בחוויה אחת' : 'חבילה מלאה ב־' + n + ' חוויות') + '</em> כאן')(ARC.filter(d => num(d.pts) <= have).length);   /* 18.10: fully covered, and how many */
+      : (n => '<em class="ok">מספיק לחבילה מלאה ' + (n === 1 ? 'בחוויה אחת' : 'ב־' + n + ' חוויות') + '</em> כאן')   /* 18.10: shorter, so it stays on one line */(ARC.filter(d => num(d.pts) <= have).length);   /* 18.10: fully covered, and how many */
     /* enough: the same card, and on first sight a little of our green confetti from the ring */
     if (!left && !me._cheered) { me._cheered = true; setTimeout(() => lmeConfetti(me.querySelector('.lme__ring')), 900); }
     if (left) me._cheered = false;
