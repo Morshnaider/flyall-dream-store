@@ -691,25 +691,19 @@ html:not([data-points="enough"]) .rd__have{display:none}
 .reel__foot{position:absolute;left:0;right:0;bottom:0;height:42%;pointer-events:none;
  background:linear-gradient(to top,rgba(6,7,16,.94) 0%,rgba(6,7,16,.72) 28%,
    rgba(6,7,16,.34) 58%,rgba(6,7,16,0) 100%)}
-/* the scroll hint: a sheet handle over the title that tugs upward — "there's a page to pull up" */
-.reel__hint{display:flex;flex-direction:column;align-items:center;gap:9px;margin-bottom:16px;
- color:#fff;pointer-events:none}
-.reel__hint i{display:block;width:44px;height:5px;border-radius:3px;background:rgba(255,255,255,.85);
- animation:hintTug 1.8s cubic-bezier(.3,.7,.3,1) infinite}
-.reel__hint span{font:400 13px/1 var(--fa-font);letter-spacing:.02em;
- animation:hintTugLbl 1.8s cubic-bezier(.3,.7,.3,1) infinite}
-@keyframes hintTug{
-  0%,100%{transform:translateY(0);width:44px}
-  35%{transform:translateY(-10px);width:32px}
-}
-@keyframes hintTugLbl{0%,100%{opacity:.45}35%{opacity:.9}}
+/* the scroll hint (18.10): the familiar bouncing double chevron, alone, no label — "there's more below" */
+.reel__hint{display:flex;justify-content:center;margin-bottom:14px;color:#fff;pointer-events:none}
+.reel__hint svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;
+ filter:drop-shadow(0 1px 4px rgba(0,0,0,.35));animation:hintBob 1.6s cubic-bezier(.45,0,.55,1) infinite}
+.reel__hint svg path:last-child{opacity:.5}
+@keyframes hintBob{0%,100%{transform:translateY(0);opacity:.95}50%{transform:translateY(7px);opacity:.6}}
 .reel__close{position:absolute;top:32px;right:16px;z-index:6;width:44px;height:44px;border-radius:50%;
  display:grid;place-items:center;color:#fff;background:rgba(255,255,255,.14);
  border:1px solid rgba(255,255,255,.22);
  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
  transition:transform .2s var(--ease)}
 .reel__close:active{transform:scale(.92)}
-@media (prefers-reduced-motion: reduce){ .reel__hint i,.reel__hint span{animation:none} }
+@media (prefers-reduced-motion: reduce){ .reel__hint svg{animation:none} }
 
 /* ============ HOW IT WORKS · the three-step walkthrough ============ */
 /* The veil grows: only a strip at the very top stays clear, so the footage
@@ -3631,7 +3625,7 @@ const slides = ARC.map(d => {
 
   const act = el('div','reel__act','<button class="rd__go ds-btn ds-btn--primary ds-btn--block" type="button">יוצאים לדרך</button>');
   if (HAVE) act.insertBefore(el('div','rd__have', HAVE), act.firstChild);   /* shown by the points switch */
-  const hint = el('div','reel__hint', '<i></i><span>גללו לגלות עוד</span>');
+  const hint = el('div','reel__hint', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7l6 6 6-6"/><path d="M6 13l6 6 6-6"/></svg>');
   sl.querySelector('.reel__copy').prepend(hint);   /* sits over the title, rides its entrance */
   sl.appendChild(act);
 
