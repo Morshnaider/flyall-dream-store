@@ -32,13 +32,15 @@ body.is-phone .view{display:none}
 </style>
 </head>
 <body>
-<div class="phone"><iframe title="Dream Store" src="pov-reels-v2.html"></iframe></div>
+<div class="phone"><iframe title="Dream Store"></iframe></div>
 <div class="view" role="group" aria-label="תצוגה">
   <button type="button" data-v="mobile"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>מובייל</button>
   <button type="button" data-v="desktop"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4" width="19" height="12.5" rx="2"/><path d="M8.5 20.5h7M12 16.5v4"/></svg>דסקטופ</button>
 </div>
 <script>
   const phone = document.querySelector('.phone'), view = document.querySelector('.view');
+  /* the open link is cached for 10 minutes: the site inside always loads fresh, so an update shows on the next visit */
+  phone.querySelector('iframe').src = 'pov-reels-v2.html?v=' + Date.now();
   const KEY = 'flyall-view';
   /* a real 390×844 screen inside; centred on the window, and scaled so all of it — frame included — fits with a margin */
   const fit = () => {
