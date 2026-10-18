@@ -1971,6 +1971,24 @@ html[data-bnpl="off"] body.is-guest .xp__deal,html[data-bnpl="off"][data-points=
   font:700 13px/1 var(--ds-font);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .xsong svg{width:20px;height:20px;flex:none}
 .xsong:hover{background:rgba(255,255,255,.18)}
+/* 18.10: the song's credit: tiny and dim under the top buttons */
+.reel__credit{position:absolute;z-index:6;top:84px;right:16px;max-width:60%;font:400 11px/1.2 var(--ds-font);color:rgba(255,255,255,.62);text-decoration:none;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:ltr}
+.reel__credit:hover{color:#fff}
+.reel.how-open .reel__credit{display:none}
+@media (min-width:1024px){ .reel__credit{top:80px;right:auto;left:32px} }
+/* 18.10: paging between experiences on the phone layout too: round arrows at mid-height on the cover's edges
+   (a phone swipes; the arrows serve a mouse and anyone who doesn't think to swipe), plus the keyboard */
+@media (max-width:1023px){
+  .reel__nav{display:grid;place-items:center;position:absolute;top:44%;z-index:6;width:38px;height:38px;border-radius:50%;color:#fff;
+    background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:opacity .25s}
+  .reel__nav svg{width:18px;height:18px}
+  .reel__nav--prev{right:10px}
+  .reel__nav--next{left:10px}
+  .reel__nav:disabled{opacity:0;pointer-events:none}
+  .reel.how-open .reel__nav{opacity:0;pointer-events:none}
+  .reel.scrolled .reel__nav{opacity:0;pointer-events:none}   /* once the detail is up, they step aside */
+}
 </style>
 </head>
 <body data-opt="D">
@@ -3059,10 +3077,16 @@ const nights = (a, b) => {
 const SHIELD = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>';
 const BACK_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 /* 18.10: the experience's own song, in Spotify's free embedded player (a ~30s preview without Premium) */
-const SONGS = { 'סלין דיון': '33LC84JgLvK2KuW43MfaNq', 'אואזיס': '5qqabIl2vWzo9ApSC317sa', 'Tomorrowland': '67h07hnkKLSeAsRztG4J7r', 'Tomorrowland Winter': '67h07hnkKLSeAsRztG4J7r', 'גמר ליגת האלופות': '7HJidWHPoAXJhaKeAmqfF5' };
+const SONGS = {   /* 18.10: the real songs, as Apple's official 30-second previews; a small credit links to Apple Music */
+  'סלין דיון': { pv: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ad/10/9c/ad109c62-aa02-8345-bfcc-b50f98345475/mzaf_3279697888712975539.plus.aac.p.m4a', t: 'My Heart Will Go On · Céline Dion', am: 'https://music.apple.com/us/album/my-heart-will-go-on-love-theme-from-titanic/479204871?i=479204873' },
+  'אואזיס': { pv: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/86/3c/97/863c9741-2dbd-7ca2-3c88-67e87d504343/mzaf_13259566290948941960.plus.aac.p.m4a', t: 'Wonderwall · Oasis', am: 'https://music.apple.com/us/album/wonderwall-remastered/1525933483?i=1525933490' },
+  'Tomorrowland': { pv: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/14/28/f0/1428f0b7-a25a-da15-e795-0fb113ad0d7e/mzaf_11522810489274985846.plus.aac.p.m4a', t: 'Sun Is Shining · Axwell Λ Ingrosso', am: 'https://music.apple.com/us/album/sun-is-shining/6798409143?i=6798409416' },
+  'גמר ליגת האלופות': { pv: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/59/e5/55/59e555d1-c860-1a6b-d812-1f05e1238e14/mzaf_7183968418986813080.plus.aac.p.m4a', t: 'UEFA Champions League Anthem', am: 'https://music.apple.com/us/album/uefa-champions-league-anthem-full-version/1616653962?i=1616653967' }
+};
+SONGS['Tomorrowland Winter'] = SONGS['Tomorrowland'];
 const songOf = d => SONGS[d.event.split(' · ')[0]];
 /* 18.10: no player: just a small Spotify button that opens the experience's song in Spotify */
-const songHTML = d => { const id = songOf(d); return id ? '<a class="xsong" href="https://open.spotify.com/track/' + id + '" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#1ED760"/><path d="M6.6 9.4c3.7-1.1 7.6-.8 10.9 1M7.2 12.4c3-.9 6.1-.6 8.8.9M7.8 15.2c2.4-.7 4.8-.5 6.9.7" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round"/></svg><span>האזינו ב־Spotify</span></a>' : ''; };
+const songHTML = () => '';   /* 18.10: no player or button: the song plays as the experience's music */
 function dealHTML(d){
   const price = +String(d.pts).replace(/[^0-9]/g, ''), dep = Math.round(price * .2);
   const xd = XD_ALL[d.event.split(' · ')[0]] || [];
@@ -3202,6 +3226,7 @@ const slides = ARC.map(d => {
     if (cr) cr.style.opacity = sl.scrollTop > 0 ? String(Math.max(0, 1 - p * 1.4)) : '';
     hint.style.opacity = sl.scrollTop > 24 ? '0' : '';
     act.classList.toggle('show', sl.scrollTop > 40);
+    reel.classList.toggle('scrolled', sl.scrollTop > 40);
   }, { passive:true });
 
   wireDeal(sl, d);
@@ -3291,7 +3316,8 @@ const bgmFade = (to, done) => {
   bgm._f = setInterval(() => { const d = to - bgm.volume; if (Math.abs(d) < .05) { bgm.volume = to; clearInterval(bgm._f); done && done(); } else bgm.volume = Math.max(0, Math.min(1, bgm.volume + Math.sign(d) * .05)); }, 40);
 };
 function playMusic(i) {
-  const d = ARC[i], src = d && MUSIC[kindOf(d)];
+  const d = ARC[i], song = d && songOf(d), src = song ? song.pv : d && MUSIC[kindOf(d)];
+  paintCredit(musicOn && song);
   if (!src) { stopMusic(); return; }
   if (!musicOn) return;
   const start = () => { const p = bgm.play(); if (p && p.catch) p.catch(() => {}); bgmFade(.7); };
@@ -3299,8 +3325,13 @@ function playMusic(i) {
   const swap = () => { bgm.dataset.src = src; bgm.src = src; start(); };
   if (bgm.paused || !bgm.dataset.src) swap(); else bgmFade(0, swap);
 }
-function stopMusic() { if (!bgm.paused) bgmFade(0, () => bgm.pause()); }
-document.addEventListener('click', e => { if (e.target.closest('.xsong')) stopMusic(); });   /* off to Spotify: our music steps aside */
+function stopMusic() { paintCredit(null); if (!bgm.paused) bgmFade(0, () => bgm.pause()); }
+/* the credit the preview needs, as quiet as it can be: under the buttons, small and dim, a link to Apple Music */
+const credit = el('a', 'reel__credit'); credit.target = '_blank'; credit.rel = 'noopener'; reel.appendChild(credit);
+function paintCredit(song) {
+  credit.hidden = !song;
+  if (song) { credit.href = song.am; credit.innerHTML = '♪ ' + song.t + ' · Apple Music'; }
+}
 reelSnd.onclick = () => {
   musicOn = !musicOn; paintSnd();
   try { sessionStorage.setItem('flyall-music', musicOn ? 'on' : 'off'); } catch (e) {}
@@ -3329,6 +3360,7 @@ function setSlide(i){
   if (i === reelIndex) return;
   reelIndex = i;
   if (reel.classList.contains('open')) playMusic(i);
+  reel.classList.remove('scrolled');
   slides.forEach((sl, j) => {
     const v = sl.querySelector('video');
     if (Math.abs(j - i) <= 1 && !v.src) v.src = v.dataset.src;   /* only the neighbours load */
@@ -3385,7 +3417,7 @@ reelClose.onclick = closeReel;
 addEventListener('keydown', e => {
   if (!reel.classList.contains('open')) return;
   if (e.key === 'Escape') { if (reel.classList.contains('how-open')) closeHow(); else closeReel(); return; }
-  if (!DESK.matches || reel.classList.contains('how-open')) return;
+  if (reel.classList.contains('how-open')) return;   /* 18.10: the keyboard pages on the phone layout too */
   if (e.key === 'ArrowLeft')  toSlide(reelIndex + 1);   /* RTL: the next one sits on the left */
   if (e.key === 'ArrowRight') toSlide(reelIndex - 1);
 });
