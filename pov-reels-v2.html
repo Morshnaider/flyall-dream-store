@@ -1571,6 +1571,8 @@ html[data-points="enough"] .pts-earn,html:not([data-points="enough"]) .pts-enoug
 .cc__top{display:flex;align-items:center;gap:12px;padding-inline-end:42px}
 .cc__h{margin:0;font:300 24px/1.15 'Ploni',var(--ds-font-btn)}
 .cc__h b{font-weight:700;background:var(--ds-gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* 18.10: the lobby calculator's question stays on one line, a touch smaller on a narrow phone (30px on desktop) */
+.cc__h--one{white-space:nowrap;font-size:clamp(19px,5.6vw,24px)}
 .cc__lbl{margin:28px 0 14px;font:700 14px/1.3 var(--ds-font);color:var(--ds-black)}
 /* a very light divider between the spend and the time */
 .cc__range + .cc__lbl{margin-top:24px;padding-top:24px;border-top:1px solid #EEF0F4}
@@ -3536,7 +3538,7 @@ function calcPopup(host){   /* host: built open inside it, not as a popup */
   const scrim = el('div', 'cc-scrim');
   const cc = el('div', 'cc cc--cal' + (host ? ' cc--inline' : ''),
       (host ? '' : '<button class="cc__x" type="button" aria-label="סגירה">' + X_IC + '</button>')
-    + '<div class="cc__top">' + FA_CARD + '<h4 class="cc__h">כמה נקודות <b>תצברו בשנה?</b></h4></div>'
+    + '<div class="cc__top">' + FA_CARD + '<h4 class="cc__h cc__h--one">כמה נקודות <b>תצברו בשנה?</b></h4></div>'
     + '<div class="cal__row"><p>ההוצאה הממוצעת החודשית שלי</p><b class="cal__amt"></b></div>'
     + '<div class="cal__track"><input class="cal__range" type="range" min="' + MIN + '" max="' + MAX + '" step="500" aria-label="הוצאה חודשית בכרטיס">'
     +   '<button class="cal__mark" type="button" aria-label="חזרה להוצאה הנוכחית שלי" style="--mf:' + ((MY_SPEND - MIN) / (MAX - MIN)).toFixed(4) + '"></button></div>'
