@@ -2,13 +2,13 @@
 <html lang="he" dir="rtl">
 <head>
 <script>
-/* 18.10: the clean version (?clean=1): no demo switches, one story — signed in, earning points, BNPL on.
-   It holds for the whole visit in this tab; ?clean=0 brings the switches back */
+/* 18.10: the shared link is the clean version: no demo switches, one story — signed in, earning points, BNPL on.
+   ?demo=1 brings the switches back for the whole visit in this tab (?demo=0 hides them again) */
 (function(){ try {
-  var q = new URLSearchParams(location.search).get('clean');
-  if (q === '1') sessionStorage.setItem('flyall-clean', '1');
-  if (q === '0') sessionStorage.removeItem('flyall-clean');
-  if (sessionStorage.getItem('flyall-clean')) {
+  var q = new URLSearchParams(location.search).get('demo');
+  if (q === '1') sessionStorage.setItem('flyall-demo', '1');
+  if (q === '0') sessionStorage.removeItem('flyall-demo');
+  if (!sessionStorage.getItem('flyall-demo')) {
     document.documentElement.classList.add('clean');
     localStorage.setItem('flyall-who', 'user'); localStorage.setItem('flyall-points', 'earn'); localStorage.setItem('flyall-bnpl', 'on');
   }
@@ -818,7 +818,7 @@ body.is-guest .trip{display:none}
       </a>
     </div>
 
-    <a class="fa-logo" href="#home" aria-label="FlyAll">
+    <a class="fa-logo" href="home.html" aria-label="FlyAll">
       <svg viewBox="154.555 18.998 88.889 26.009" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="faLogoGrad" x1="160.842" y1="42.732" x2="176.749" y2="20.8419"
@@ -869,7 +869,7 @@ body.is-guest .trip{display:none}
           <img src="assets/header-desktop/coins.svg" width="32" height="32" alt="">
         </a>
       </div>
-      <a class="fa-dh__logo" href="#home" aria-label="FlyAll">
+      <a class="fa-dh__logo" href="home.html" aria-label="FlyAll">
         <img src="assets/header-desktop/logo.svg" width="136.754" height="40.0105" alt="">
       </a>
       <div class="fa-dh__end">
@@ -975,7 +975,7 @@ const ITEMS = [
  { k:'kit',      g:'kit',  when:'before',  t:'ערכת הנסיעה של FlyAll',  s:'תיק, מסכת עיניים ואביזרי טיסה', pts:320, art:'kit', isNew:1 },
  { k:'pillow',   g:'kit',  when:'flight',  t:'כרית צוואר',             s:'ספוג זיכרון, עם נרתיק',     pts:140,  art:'pillow' },
  { k:'suitcase', g:'kit',  when:'before',  t:'טרולי FlyAll',           s:'לעלייה למטוס · 55 ס״מ',     pts:1200, art:'suitcase' },
- { k:'tag',      g:'kit',  when:'before',  t:'תג מזוודה',              s:'עם השם שלך עליו',          pts:60,   art:'tag' },
+ { k:'tag',      g:'kit',  when:'before',  t:'תג מזוודה',              s:'עם השם שלכם עליו',          pts:60,   art:'tag' },
  { k:'passport', g:'kit',  when:'before',  t:'כיסוי לדרכון',            s:'עם כיס לכרטיס העלייה',      pts:90,   art:'passport' },
  { k:'bottle',   g:'kit',  when:'flight',  t:'בקבוק FlyAll',           s:'שומר על קור 24 שעות',       pts:110,  art:'bottle' },
 ];
@@ -1020,8 +1020,8 @@ const BAG = (() => {
   return '<div class="trip">' +
     arc('m', '0 0 320 80', 'M24 66 Q160 -14 296 60', [24, 66], [296, 60]) +
     arc('d', '0 0 1000 124', 'M970 84 Q500 -40 30 84', [970, 84], [30, 84], ['הבית', 'החופשה']) +
-    '<strong>ענת, הנקודות שלך כבר בדרך לחופשה</strong>' +
-    '<span>בחרי איפה לשדרג אותה</span></div>';
+    '<strong>הנקודות שלכם כבר בדרך לחופשה</strong>' +
+    '<span>בחרו איפה לשדרג אותה</span></div>';
 })();
 const LEAD = '<section class="lead">' +
   '<a class="lead__home" href="pov-reels-v2.html">'+ARROW+'<span>חזרה לעמוד הראשי</span></a>' +

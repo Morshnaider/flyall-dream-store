@@ -2,13 +2,13 @@
 <html lang="he" dir="rtl">
 <head>
 <script>
-/* 18.10: the clean version (?clean=1): no demo switches, one story — signed in, earning points, BNPL on.
-   It holds for the whole visit in this tab; ?clean=0 brings the switches back */
+/* 18.10: the shared link is the clean version: no demo switches, one story — signed in, earning points, BNPL on.
+   ?demo=1 brings the switches back for the whole visit in this tab (?demo=0 hides them again) */
 (function(){ try {
-  var q = new URLSearchParams(location.search).get('clean');
-  if (q === '1') sessionStorage.setItem('flyall-clean', '1');
-  if (q === '0') sessionStorage.removeItem('flyall-clean');
-  if (sessionStorage.getItem('flyall-clean')) {
+  var q = new URLSearchParams(location.search).get('demo');
+  if (q === '1') sessionStorage.setItem('flyall-demo', '1');
+  if (q === '0') sessionStorage.removeItem('flyall-demo');
+  if (!sessionStorage.getItem('flyall-demo')) {
     document.documentElement.classList.add('clean');
     localStorage.setItem('flyall-who', 'user'); localStorage.setItem('flyall-points', 'earn'); localStorage.setItem('flyall-bnpl', 'on');
   }
@@ -1420,6 +1420,68 @@ body.booked-on .rg,body.booked-on .side{display:none!important}
   body.past1 .grid > .side > .ev{display:none}
   body:not(.past1) .side{position:static;max-height:none;overflow:visible}
 }
+/* 18.10: past step 1 the ring card folds to a slim line (the share and the points in hand) that scrolls with the page;
+   the arrow opens the full card again. Step 1 keeps the full card. */
+.rg__more{display:none}
+body.past1 .grid > .side > .rg{position:relative;top:auto;z-index:auto}
+body.past1 .rg:not(.open){padding:8px 12px 8px 14px;gap:12px;border-radius:16px;box-shadow:0 6px 16px rgba(24,22,64,.07)}
+body.past1 .rg:not(.open) .rg__ring{width:44px;height:44px}
+body.past1 .rg:not(.open) .rg__ring circle{stroke-width:9}
+body.past1 .rg:not(.open) .rg__n b{font-size:12px}
+body.past1 .rg:not(.open) .rg__t,body.past1 .rg:not(.open) .rg__s,body.past1 .rg:not(.open) .rg__pp,body.past1 .rg:not(.open) .rg__calc{display:none}
+body.past1 .rg:not(.open) .rg__have{margin:0;font-size:15px}
+body.past1 .rg:not(.open) .rg__tx{flex:1;padding-inline-end:0}
+body.past1 .rg__more{display:grid;place-items:center;flex:none;width:32px;height:32px;margin-inline-start:auto;border-radius:50%;cursor:pointer;
+  background:#fff;border:1px solid #E6E1F2;color:var(--ds-purple)}
+body.past1 .rg__more svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+body.past1 .rg.open .rg__more{position:absolute;top:auto;bottom:12px;inset-inline-end:12px}
+body.past1 .rg.open .rg__tx{padding-inline-end:44px}
+body.past1 .rg.open .rg__more svg{transform:rotate(180deg)}
+@media (max-width:1023px){ body.past1 .rg.open .rg__calc{top:12px;bottom:auto;transform:none} body.past1 .rg.open .rg__calc:hover{transform:scale(1.08)} }
+/* 18.10: the thumb's centre travels 14px in from each end, so the colour fill and the "my spend" dot follow the same path:
+   all three sit on exactly the same value */
+.cal__range::-webkit-slider-runnable-track{background:linear-gradient(to left,#1B5ECE,#824AEA calc(calc(14px + (100% - 28px) * var(--pf, 0)) * .6),#F63DE4 calc(14px + (100% - 28px) * var(--pf, 0)),#E6E8EF calc(14px + (100% - 28px) * var(--pf, 0)))}
+.cal__range::-moz-range-track{background:linear-gradient(to left,#1B5ECE,#824AEA calc(calc(14px + (100% - 28px) * var(--pf, 0)) * .6),#F63DE4 calc(14px + (100% - 28px) * var(--pf, 0)),#E6E8EF calc(14px + (100% - 28px) * var(--pf, 0)))}
+.cc--dark .cal__range::-webkit-slider-runnable-track{background:linear-gradient(to left,#1B5ECE,#824AEA calc(calc(14px + (100% - 28px) * var(--pf, 0)) * .6),#F63DE4 calc(14px + (100% - 28px) * var(--pf, 0)),rgba(255,255,255,.16) calc(14px + (100% - 28px) * var(--pf, 0)))}
+.cc--dark .cal__range::-moz-range-track{background:linear-gradient(to left,#1B5ECE,#824AEA calc(calc(14px + (100% - 28px) * var(--pf, 0)) * .6),#F63DE4 calc(14px + (100% - 28px) * var(--pf, 0)),rgba(255,255,255,.16) calc(14px + (100% - 28px) * var(--pf, 0)))}
+.cal__range::-moz-range-thumb{box-sizing:border-box;width:28px;height:28px}
+.cal__track .cal__mark{inset-inline-start:calc(14px + (100% - 28px) * var(--mf, 0));margin-inline-start:-5px}
+/* 18.10: included hotel and room read "כלול", not "+0"; and why the card is asked for when today's charge is the deposit */
+.pts--inc{font:700 15px/1 var(--ds-font);color:var(--ok)}
+.due__why{display:flex;align-items:flex-start;gap:6px;margin:8px 0 0;font:400 13px/1.45 var(--ds-font);color:#5B6170}
+.due__why svg{flex:none;width:15px;height:15px;margin-top:2px;fill:none;stroke:var(--ds-gray);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ev__logos{position:absolute;z-index:1;bottom:10px;inset-inline-start:14px;display:flex;gap:8px;align-items:center}
+.ev__logos .ev__logo{position:static;height:26px}
+.booked__acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.booked__act{flex:1 1 180px;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 16px;border-radius:23px;cursor:pointer;
+  border:1.5px solid transparent;background:linear-gradient(#fff,#fff) padding-box,var(--ds-gradient) border-box;color:var(--ds-blue);font:700 15px/1 var(--ds-font-btn);text-decoration:none}
+.booked__act svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* 18.10: what comes next, as two friendly tiles: a gradient icon, a title and a quiet line under it */
+.booked__acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.bk-tile{display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px 10px 14px;border-radius:18px;cursor:pointer;text-align:center;text-decoration:none;color:var(--ink);
+  border:1px solid #ECE6F7;background:radial-gradient(90% 80% at 100% 0%,#FBEAF8,transparent 70%),radial-gradient(90% 80% at 0% 100%,#E8F0FF,transparent 70%),#fff;
+  box-shadow:0 8px 20px rgba(58,26,124,.08);transition:transform .2s var(--ease),box-shadow .2s}
+.bk-tile:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(58,26,124,.14)}
+.bk-tile:active{transform:scale(.97)}
+.bk-tile__ic{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--ds-gradient);box-shadow:0 6px 16px rgba(130,74,234,.35)}
+.bk-tile__ic svg{width:21px;height:21px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bk-tile__tx{display:flex;flex-direction:column;gap:3px}
+.bk-tile__tx b{font:700 15px/1.2 var(--ds-font)}
+.bk-tile__tx small{font:400 12px/1.3 var(--ds-font-btn);color:var(--ds-gray)}
+/* 18.10: what comes next, quiet: two plain rows under the list, an icon, the action and a chevron */
+.bk-rows{margin-top:16px;border-top:1px solid var(--line)}
+.bk-row{display:flex;align-items:center;gap:12px;width:100%;padding:16px 4px;border:0;border-bottom:1px solid var(--line);background:none;cursor:pointer;
+  text-align:right;text-decoration:none;color:var(--ds-blue);font:700 16px/1.2 var(--ds-font)}
+.bk-row > span{flex:1}
+.bk-row svg{flex:none;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bk-row .bk-row__go{width:16px;height:16px;color:var(--ds-gray)}
+.bk-row:hover > span{text-decoration:underline;text-underline-offset:3px}
+/* 18.10: rooms fit the party: a room larger than it is shown greyed with why; "+" stops once everyone has a bed */
+.room--off{opacity:.5;background:#F7F8FA}
+.room--off .stepper button{pointer-events:none}
+.room__why{margin-top:6px!important;font:600 12px/1.3 var(--ds-font)!important;color:var(--ds-gray)!important}
+.room__ok{display:flex;align-items:center;gap:6px;margin:12px 0 0;font:600 14px/1.3 var(--ds-font);color:var(--ok)}
+.room__ok svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 </style>
 </head>
 <body>
@@ -1483,7 +1545,7 @@ body.booked-on .rg,body.booked-on .side{display:none!important}
 
     </div>
 
-    <a class="fa-logo" href="pov-reels-v2.html" aria-label="FlyAll · לעמוד הבית">
+    <a class="fa-logo" href="home.html" aria-label="FlyAll · לעמוד הבית">
       <svg viewBox="154.555 18.998 88.889 26.009" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="faLogoGrad" x1="160.842" y1="42.732" x2="176.749" y2="20.8419"
@@ -1534,7 +1596,7 @@ body.booked-on .rg,body.booked-on .side{display:none!important}
           <img src="assets/header-desktop/coins.svg" width="32" height="32" alt="">
         </a>
       </div>
-      <a class="fa-dh__logo" href="pov-reels-v2.html" aria-label="FlyAll · לעמוד הבית">
+      <a class="fa-dh__logo" href="home.html" aria-label="FlyAll · לעמוד הבית">
         <img src="assets/header-desktop/logo.svg" width="136.754" height="40.0105" alt="">
       </a>
       <div class="fa-dh__end">
@@ -1551,6 +1613,15 @@ body.booked-on .rg,body.booked-on .side{display:none!important}
 
 
 </header>
+<script>
+/* 18.10: after a booking paid in points, the balance shown everywhere is what is left (for this visit, in this tab) */
+(function(){ try {
+  var left = sessionStorage.getItem('flyall-left'); if (left === null) return;
+  var n = (+left).toLocaleString('en-US');
+  document.querySelectorAll('.fa-points__value, .fa-points__say').forEach(function(e){ e.textContent = n; });
+  document.querySelectorAll('.fa-dh__points b').forEach(function(b){ b.innerHTML = b.innerHTML.replace(/\d[\d,]*/, n); });
+} catch (e) {} })();
+</script>
 
 <main class="fl" id="app" aria-live="polite"></main>
 
@@ -1561,9 +1632,31 @@ body.booked-on .rg,body.booked-on .side{display:none!important}
 <script>
 /* ================= data ================= */
 const RATE = 0.1;          /* 1 point per ₪10 in the card — demo only, the real formula is still open */
-const HAVE = 2000;         /* Anat's balance */
-const MONTHS = 7;          /* card months until the show */
-const BASE = 5700;         /* Céline Dion · Paris, per passenger, basic package */
+const HAVE = +(document.querySelector('.fa-points__value')?.textContent || '2000').replace(/[^0-9]/g, '');   /* Anat's balance, after any booking in this visit */
+/* 18.10: the dream comes from the experience page (?ev=…&city=…&a=…&b=…&p=…); without it, Céline Dion in Paris */
+const EV = (() => {
+  const q = new URLSearchParams(location.search);
+  const d = { name: 'סלין דיון', city: 'פריז', kind: 'ההופעה', cat: 'הופעות', logo: ['assets/logos/celine-dion.png'],
+    img: 'assets/posters/0_Concert_Crowd_720x1280.jpg', venue: 'La Défense Arena · פריז', a: '13.05', b: '15.05', price: 5700,
+    at: new Date(2027, 4, 14, 21, 0, 0), when: 'יום שישי, 14.5.2027 · 21:00', cdLbl: 'עד ההופעה', air: 'CDG', map: true, paris: true };
+  if (!q.get('ev')) return d;
+  const dm = s => { const [x, y] = s.split('.').map(Number); return new Date(2027, y - 1, x); };
+  const kind = q.get('kind') || 'ההופעה';
+  const city = q.get('city') || '';
+  const AIR = { 'מדריד': 'MAD', 'פריז': 'CDG', 'בלגיה': 'BRU', 'אלפ ד׳ואז': 'GNB', 'גלזגו': 'GLA', 'מנצ׳סטר': 'MAN', 'מינכן': 'MUC', 'רומא': 'FCO', 'נבוורת׳': 'LTN', 'לונדון': 'LHR', 'מונזה': 'MXP', 'ברצלונה': 'BCN' };
+  const a = q.get('a'), b = q.get('b');
+  return { name: q.get('ev'), city, kind, cat: kind === 'המשחק' ? 'ספורט' : kind === 'הפסטיבל' ? 'פסטיבלים' : 'הופעות',
+    logo: (q.get('logo') || '').split(',').filter(Boolean).map(f => 'assets/logos/' + f), img: q.get('img') || d.img, venue: city,
+    a, b, price: +q.get('p') || d.price, at: dm(a), when: 'יציאה ' + a + ' · חזרה ' + b + '.2027', cdLbl: 'עד הטיסה',
+    air: AIR[city] || 'CDG', map: false, paris: city === 'פריז' };
+})();
+const DM = s => { const [x, y] = s.split('.').map(Number); return new Date(2027, y - 1, x); };
+const NIGHTS = Math.round((DM(EV.b) - DM(EV.a)) / 864e5);
+const DATES = EV.a + '–' + EV.b + '.2027';
+const DUE = (dt => dt.getDate() + '.' + (dt.getMonth() + 1) + '.' + dt.getFullYear())(new Date(EV.at.getTime() - 60 * 864e5));   /* the balance, 60 days before */
+const MONTHS = Math.max(1, Math.round((EV.at - new Date()) / (30.4 * 864e5)));   /* card months until the dream */
+const BASE = EV.price;     /* per passenger, basic package */
+const STAGE = EV.kind === 'המשחק' ? 'המגרש' : 'הבמה';
 const fmt = n => Math.round(n).toLocaleString('en-US');
 const el = (tag, cls, html) => { const n = document.createElement(tag); if (cls) n.className = cls; if (html != null) n.innerHTML = html; return n; };
 /* a guest has no points — the shekels lead in bold, the points follow small */
@@ -1571,23 +1664,28 @@ const pts = (n, plus) => '<span class="pts' + (plus ? ' pts--plus' : '') + '">' 
   + (isGuest() ? '₪' + fmt(n) + '<small>(' + fmt(n) + ' נק׳)</small>' : fmt(n) + ' נק׳<small>(₪' + fmt(n) + ')</small>') + '</span>';
 
 const PACKS = [
-  { id: 'base', name: 'בסיס',  zone: 'יציע צד',   desc: 'מקומות מסומנים ביציע העליון, צידי הבמה', up: 0,    color: '#7BC86C', z: 'side' },
-  { id: 'plus', name: 'פלוס',  zone: 'יציע ראשי', desc: 'קומה ראשונה מול הבמה, שדה ראייה מלא',    up: 1200, color: '#C46FC0', z: 'main' },
-  { id: 'vip',  name: 'VIP',   zone: 'פרקט',      desc: 'רחבת עמידה קדמית, 20 מטר מהבמה',         up: 2500, color: '#F2C230', z: 'floor' }
+  { id: 'base', name: 'בסיס',  zone: 'יציע צד',   desc: 'מקומות מסומנים ביציע העליון, בצד ' + STAGE, up: 0,    color: '#7BC86C', z: 'side' },
+  { id: 'plus', name: 'פלוס',  zone: 'יציע ראשי', desc: 'קומה ראשונה מול ' + STAGE + ', שדה ראייה מלא',    up: 1200, color: '#C46FC0', z: 'main' },
+  { id: 'vip',  name: 'VIP',   zone: 'פרקט',      desc: EV.kind === 'המשחק' ? 'שורות ראשונות, צמוד למגרש' : 'רחבת עמידה קדמית, 20 מטר מהבמה',         up: 2500, color: '#F2C230', z: 'floor' }
 ];
-const HOTELS = [
+const HOTELS = !EV.paris ? [
+  { id: 'h1', name: 'מלון 4★ ליד ' + (EV.kind === 'המשחק' ? 'האצטדיון' : 'האירוע'), stars: 4, score: '8.6', reviews: 1240, where: EV.city + ' · 5 דק׳ הליכה', up: 0, img: 'assets/flow/room-1.jpg', perks: ['ארוחת בוקר כלולה'] },
+  { id: 'h2', name: 'מלון 4★ במרכז ' + EV.city, stars: 4, score: '8.4', reviews: 980, where: EV.city + ' · 10 דק׳ בתחבורה', up: 350, img: 'assets/flow/room-2.jpg', perks: ['ארוחת בוקר כלולה', 'בריכה מקורה'] },
+  { id: 'h3', name: 'מלון בוטיק 5★', stars: 5, score: '9.3', reviews: 612, where: EV.city + ' · 15 דק׳ במטרו', up: 1400, img: 'assets/flow/room-3.jpg', perks: ['ארוחת בוקר כלולה', 'ספא'] }
+] : [
   { id: 'h1', name: 'Pullman Paris La Défense', stars: 4, score: '8.6', reviews: 1240, where: 'לה דפנס · 5 דק׳ הליכה מהארנה', up: 0,    img: 'assets/flow/room-1.jpg', perks: ['ארוחת בוקר כלולה'] },
   { id: 'h2', name: 'Hilton Paris La Défense',  stars: 4, score: '8.4', reviews: 980,  where: 'לה דפנס · 8 דק׳ הליכה מהארנה', up: 350,  img: 'assets/flow/room-2.jpg', perks: ['ארוחת בוקר כלולה', 'בריכה מקורה'] },
   { id: 'h3', name: 'Le Fouquet’s Paris',       stars: 5, score: '9.3', reviews: 612,  where: 'שאנז אליזה · 15 דק׳ במטרו',     up: 1400, img: 'assets/flow/room-3.jpg', perks: ['ארוחת בוקר כלולה', 'ספא'] }
 ];
 const ROOMS = [
-  { id: 'r1', name: 'חדר סטנדרט',      size: '17 מ״ר · QUEEN',         guests: 2, up: 0,   img: 'assets/flow/room-1.jpg' },
-  { id: 'r2', name: 'חדר דלוקס',       size: '24 מ״ר · KING · נוף לעיר', guests: 2, up: 250, img: 'assets/flow/room-2.jpg' },
-  { id: 'r3', name: 'סוויטה ג׳וניור', size: '38 מ״ר · KING + ספה',     guests: 3, up: 900, img: 'assets/flow/room-3.jpg' }
+  /* 18.10: always the three occupancies: single, double, triple (the single carries a supplement; the numbers are illustrative) */
+  { id: 'r1', name: 'חדר יחיד',     size: '14 מ״ר · מיטה אחת',          guests: 1, up: 600, img: 'assets/flow/room-1.jpg' },
+  { id: 'r2', name: 'חדר זוגי',     size: '17 מ״ר · QUEEN',              guests: 2, up: 0,   img: 'assets/flow/room-2.jpg' },
+  { id: 'r3', name: 'חדר לשלושה',  size: '26 מ״ר · QUEEN + מיטת יחיד',  guests: 3, up: 0,   img: 'assets/flow/room-3.jpg' }
 ];
 const FLIGHTS = [
-  { id: 'f1', up: 0,   legs: [['LY 323', 'TLV', '13/05/27 · 08:45', 'CDG', '13/05/27 · 12:50', '5h 05m'], ['LY 324', 'CDG', '15/05/27 · 16:00', 'TLV', '15/05/27 · 21:15', '4h 15m']] },
-  { id: 'f2', up: 180, legs: [['LY 325', 'TLV', '13/05/27 · 16:10', 'CDG', '13/05/27 · 20:15', '5h 05m'], ['LY 328', 'CDG', '16/05/27 · 11:30', 'TLV', '16/05/27 · 16:45', '4h 15m']] }
+  { id: 'f1', up: 0,   legs: [['LY 323', 'TLV', EV.a.replace('.', '/') + '/27 · 08:45', EV.air, EV.a.replace('.', '/') + '/27 · 12:50', '5h 05m'], ['LY 324', EV.air, EV.b.replace('.', '/') + '/27 · 16:00', 'TLV', EV.b.replace('.', '/') + '/27 · 21:15', '4h 15m']] },
+  { id: 'f2', up: 180, legs: [['LY 325', 'TLV', EV.a.replace('.', '/') + '/27 · 16:10', EV.air, EV.a.replace('.', '/') + '/27 · 20:15', '5h 05m'], ['LY 328', EV.air, EV.b.replace('.', '/') + '/27 · 11:30', 'TLV', EV.b.replace('.', '/') + '/27 · 16:45', '4h 15m']] }
 ];
 const STEPS = ['חבילה', 'מלון', 'חדר', 'טיסה', 'סיכום ותשלום'];
 /* as in Figma: after the flight, step 5 asks who the booking is for, then "מעבר להזמנה" opens the checkout
@@ -1619,12 +1717,18 @@ const RING = el('aside', 'rg',
     '<div class="rg__ring"><svg viewBox="0 0 92 92" aria-hidden="true"><defs><linearGradient id="rgG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B5ECE"/><stop offset=".5" stop-color="#824AEA"/><stop offset="1" stop-color="#F63DE4"/></linearGradient></defs>'
   +   '<circle class="bg" cx="46" cy="46" r="40"/><circle class="fg" cx="46" cy="46" r="40" stroke-dasharray="' + RC + '" stroke-dashoffset="' + RC + '"/></svg>'
   +   '<p class="rg__n"><b class="v-pct">0%</b></p></div>'   /* 18.10: the share already in hand, as on the points card, in place of "2,000 מתוך 5,700" */
-  + '<div class="rg__tx"><p class="rg__t">ענת, הדרך לחלום כבר התחילה</p>'
-  +   '<p class="rg__have">יש לך <b>' + fmt(HAVE) + '</b> נקודות קיימות</p>'   /* 18.10: as on the experience's card */
-  +   '<p class="rg__s" aria-live="polite">נשאר לך לצבור עוד <b class="v-left" data-v="0">0</b> נקודות להגשמת החלום כולו</p>'
+  + '<div class="rg__tx"><p class="rg__t">הדרך לחלום כבר התחילה</p>'
+  +   '<p class="rg__have">יש לכם <b>' + fmt(HAVE) + '</b> נקודות קיימות</p>'   /* 18.10: as on the experience's card */
+  +   '<p class="rg__s" aria-live="polite">נשאר לכם לצבור עוד <b class="v-left" data-v="0">0</b> נקודות להגשמת החלום כולו</p>'
   +   '<p class="rg__pp">לאדם בחדר זוגי</p>'
-  +   '</div><button class="rg__calc" type="button" aria-label="מחשבון נקודות" title="מחשבון נקודות"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8 7h8M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15v2.5M8.5 18h.01M12 18h.01"/></svg></button>');
+  +   '</div><button class="rg__more" type="button" aria-expanded="false" aria-label="פרטי הנקודות"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>'
+  +   '<button class="rg__calc" type="button" aria-label="מחשבון נקודות" title="מחשבון נקודות"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8 7h8M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15v2.5M8.5 18h.01M12 18h.01"/></svg></button>');
 RING.setAttribute('aria-label', 'הדרך לחלום');
+/* 18.10: from step 2 the ring folds to one slim line; the arrow opens it again */
+RING.querySelector('.rg__more').onclick = () => {
+  const o = RING.classList.toggle('open');
+  RING.querySelector('.rg__more').setAttribute('aria-expanded', o);
+};
 
 /* ================= the ring's calculator — the lobby's popup, made for this dream =================
    no "when" here: the show is known, so the months are fixed; the answer is measured against this booking's total */
@@ -1635,15 +1739,15 @@ const CALC = (() => {
   /* the lobby's calculator, the same design; here the months are known (the show), and the answer is measured against this booking */
   const cc = el('div', 'cc cc--cal',
       '<button class="cc__x" type="button" aria-label="סגירה">' + X_IC + '</button>'
-    + '<div class="cc__top"><span class="fa-card" aria-hidden="true"><b>FlyAll</b><i></i><span>•••• 2026</span></span><h4 class="cc__h">כמה נקודות <b>תצברו עד ההופעה?</b></h4></div>'
+    + '<div class="cc__top"><span class="fa-card" aria-hidden="true"><b>FlyAll</b><i></i><span>•••• 2026</span></span><h4 class="cc__h">כמה נקודות <b>תצברו עד ' + EV.kind + '?</b></h4></div>'
     + '<div class="cal__row"><p>ההוצאה החודשית שלי בכרטיס</p><b class="cal__amt"></b></div>'
     + '<input class="cal__range" type="range" min="' + MIN + '" max="' + MAX + '" step="500" aria-label="הוצאה חודשית בכרטיס">'
     + '<div class="cal__ends"><span>₪' + fmt(MIN) + '</span><span>₪' + fmt(MAX) + '</span></div>'
     + '<div class="cal__res" aria-live="polite">'
-    +   '<p class="cal__lbl">נקודות עתידיות עד ההופעה · ' + MONTHS + ' חודשים</p>'
+    +   '<p class="cal__lbl">נקודות עתידיות עד ' + EV.kind + ' · ' + MONTHS + ' חודשים</p>'
     +   '<p class="cal__big"><b class="cal__year"></b><small>נק׳</small></p>'
     +   '<p class="cal__eq">1 נק׳ = ₪1</p>'
-    +   '<p class="cal__tot"><span>ביחד עם ' + fmt(HAVE) + ' הנקודות הקיימות שלך</span><b class="cal__all"></b></p>'
+    +   '<p class="cal__tot"><span>ביחד עם ' + fmt(HAVE) + ' הנקודות הקיימות שלכם</span><b class="cal__all"></b></p>'
     +   '<p class="cc__end"></p></div>'
     + '<a class="cc__go" href="#">חזרה להזמנה</a>');
   cc.setAttribute('role', 'dialog'); cc.setAttribute('aria-modal', 'true'); cc.setAttribute('aria-label', 'מחשבון נקודות');
@@ -1688,7 +1792,7 @@ const CALC = (() => {
     const earn = spend * MONTHS * RATE, tot = HAVE + earn, t = total(), left = Math.max(0, t - tot);
     q('.cal__amt').textContent = '₪' + fmt(spend);
     range.value = spend;
-    range.style.setProperty('--p', ((spend - MIN) / (MAX - MIN) * 100).toFixed(1) + '%');
+    range.style.setProperty('--p', ((spend - MIN) / (MAX - MIN) * 100).toFixed(1) + '%'); range.style.setProperty('--pf', ((spend - MIN) / (MAX - MIN)).toFixed(4));
     roll(q('.cal__year'), earn);
     q('.cal__all').textContent = fmt(tot) + ' נק׳';
     const end = q('.cc__end');
@@ -1729,7 +1833,7 @@ const GROUP = (() => {
       + '<h4 class="gx__h">טסים <b>יותר מ־6?</b></h4>'
       + '<p class="gx__p">אונליין אפשר להזמין עד 6 נוסעים. לקבוצה גדולה יותר נשמח לעזור: '
       + (g ? 'השאירו שם וטלפון, ונציג שלנו יחזור אליכם עם זמינות ומחיר לכל הנוסעים.'
-           : 'נציג שלנו יחזור אליך בהקדם למספר <span class="nw"><bdi dir="ltr">05X-XXXX338</bdi>,</span> עם זמינות ומחיר לכל הנוסעים.') + '</p>'
+           : 'נציג שלנו יחזור אליכם בהקדם למספר <span class="nw"><bdi dir="ltr">05X-XXXX338</bdi>,</span> עם זמינות ומחיר לכל הנוסעים.') + '</p>'
       + '<div class="fields">'
       + (g ? '<div><label for="gx-name">שם מלא*</label><input id="gx-name" type="text" autocomplete="name"></div>'
            + '<div><label for="gx-tel">מספר נייד*</label><input id="gx-tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="050-0000000"></div>' : '')
@@ -1737,7 +1841,7 @@ const GROUP = (() => {
       + '<div class="stepper"><button type="button" data-gx-n="1" aria-label="נוסע נוסף">+</button><output>' + n + '</output>'
       + '<button type="button" data-gx-n="-1" aria-label="פחות נוסעים"' + (n <= MIN ? ' disabled' : '') + '>−</button></div></div></div>'
       + '</div>'
-      + '<p class="gx__note"><b>שים לב:</b> המקומות והמחיר הסופי ישוריינו רק לאחר אישור הנציג.</p>'
+      + '<p class="gx__note"><b>שימו לב:</b> המקומות והמחיר הסופי ישוריינו רק לאחר אישור הנציג.</p>'
       + (fail ? '<p class="gx__fail" role="alert">לא הצלחנו לשלוח את הבקשה. נסו שוב בעוד רגע.</p>' : '')
       + '<button class="gx__go" type="button" data-gx-send>' + (fail ? 'נסו שוב' : 'חזרו אליי') + '</button>'
       + '<button class="gx__no" type="button" data-gx-x>ביטול</button>';
@@ -1746,9 +1850,9 @@ const GROUP = (() => {
     gx.classList.add('gx--done');
     gx.innerHTML = '<button class="cc__x" type="button" data-gx-x aria-label="סגירה">' + X_IC + '</button>'
       + '<span class="gx__ok">' + OK_IC + '</span>'
-      + '<h4 class="gx__h"><b>בקשתך התקבלה</b></h4>'
-      + '<p class="gx__p">נציג שלנו יחזור אליך בהקדם עם זמינות ומחיר</p>'
-      + '<div class="gx__sum"><p>החוויה<b>סלין דיון · פריז</b></p><p>המועד<b>14.5.2027</b></p><p>מספר הנוסעים<b>' + n + '</b></p></div>'
+      + '<h4 class="gx__h"><b>הבקשה התקבלה</b></h4>'
+      + '<p class="gx__p">נציג שלנו יחזור אליכם בהקדם עם זמינות ומחיר</p>'
+      + '<div class="gx__sum"><p>החוויה<b>' + EV.name + (EV.city ? ' · ' + EV.city : '') + '</b></p><p>המועד<b>' + DATES + '</b></p><p>מספר הנוסעים<b>' + n + '</b></p></div>'
       + '<button class="gx__go" type="button" data-gx-x>סגירה</button>';
   };
   const bad = (inp, msg) => {
@@ -1804,6 +1908,10 @@ function countTo(node, to) {
 }
 function drawRing() {
   const t = total();
+  /* 18.10: the per-person line follows the room once one is chosen: one guest per room reads "בחדר יחיד";
+     until then it stays the opening price, per person in a double room */
+  const single = roomCount() > 0 && S.pax / roomCount() <= 1;
+  RING.querySelector('.rg__pp').textContent = single ? 'לאדם בחדר יחיד' : 'לאדם בחדר זוגי';
   RING.querySelector('.fg').style.strokeDashoffset = String(RC * (1 - Math.min(1, HAVE / t)));
   RING.querySelector('.v-pct').textContent = Math.round(Math.min(1, HAVE / t) * 100) + '%';
   countTo(RING.querySelector('.v-left'), Math.max(0, t - HAVE));
@@ -1819,7 +1927,7 @@ const IC = {
   pen: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
   info: '<svg viewBox="0 0 24 24" style="stroke:var(--ds-gray)"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>'
 };
-const SHOW_AT = new Date(2027, 4, 14, 21, 0, 0);   /* the show: Friday 14.5.2027, 21:00 */
+const SHOW_AT = EV.at;   /* the show (or, for a dream from the experience page, the flight out) */
 const CD_UNITS = ['ימים', 'שעות', 'דקות'];
 const cdParts = () => {
   let t = Math.max(0, Math.floor((SHOW_AT - Date.now()) / 60000));
@@ -1827,7 +1935,7 @@ const cdParts = () => {
   const h = Math.floor(t / 60);
   return [d, h, t - h * 60].map((v, i) => i ? String(v).padStart(2, '0') : String(v));
 };
-const cdHTML = () => '<em>עד ההופעה</em>' + cdParts().map((v, i) => '<span><b>' + v + '</b><small>' + CD_UNITS[i] + '</small></span>').join('<i>:</i>');
+const cdHTML = () => '<em>' + EV.cdLbl + '</em>' + cdParts().map((v, i) => '<span><b>' + v + '</b><small>' + CD_UNITS[i] + '</small></span>').join('<i>:</i>');
 /* the card is redrawn on every step, so the tick looks the numbers up again */
 setInterval(() => {
   const b = document.querySelectorAll('.ev__cd b'), v = cdParts();
@@ -1839,28 +1947,28 @@ function sideHTML() {
   const rows = [['נוסעים', S.pax]];
   if (pk) rows.push(['חבילה', pk.name + ' · ' + pk.zone]);
   if (ho) rows.push(['מלון', ho.name]);
-  if (roomCount()) rows.push(['חדרים', ROOMS.filter(r => S.rooms[r.id]).map(r => S.rooms[r.id] + ' × ' + r.name).join(', ') + ' · 2 לילות']);
+  if (roomCount()) rows.push(['חדרים', ROOMS.filter(r => S.rooms[r.id]).map(r => S.rooms[r.id] + ' × ' + r.name).join(', ') + ' · ' + NIGHTS + ' לילות']);
   if (fl && S.step >= 3) rows.push(['טיסה', fl.legs.map(l => l[0]).join(' / ')]);   /* 18.10: the summary builds up as you go: the flight once you reach its step */
   const t = total(), dep = Math.round(t * 0.2);
-  return '<article class="card ev"><div class="ev__img"><img class="ev__logo" src="assets/logos/celine-dion.png" alt="Céline Dion"></div>'
-    + '<div class="ev__body"><p class="ev__kick">הופעות · מאי 2027</p><h2 class="ev__t">סלין דיון · פריז</h2>'
-    + '<div class="ev__cd" role="timer" aria-label="ספירה לאחור עד ההופעה">' + cdHTML() + '</div>'
-    + '<ul class="ev__meta"><li>' + IC.pin + 'La Défense Arena · פריז</li><li>' + IC.cal + 'יום שישי, 14.5.2027 · 21:00</li></ul></div></article>'
+  return '<article class="card ev"><div class="ev__img" style="background-image:url(' + EV.img + ')">' + (EV.logo.length ? '<span class="ev__logos">' + EV.logo.map(f => '<img class="ev__logo" src="' + f + '" alt="">').join('') + '</span>' : '') + '</div>'
+    + '<div class="ev__body"><p class="ev__kick">' + EV.cat + ' · 2027</p><h2 class="ev__t">' + EV.name + (EV.city ? ' · ' + EV.city : '') + '</h2>'
+    + '<div class="ev__cd" role="timer" aria-label="ספירה לאחור ' + EV.cdLbl + '">' + cdHTML() + '</div>'
+    + '<ul class="ev__meta"><li>' + IC.pin + EV.venue + '</li><li>' + IC.cal + EV.when + '</li></ul></div></article>'
     + '<article class="card sum"><h3>סיכום</h3><dl>' + rows.map(([a, b]) => '<dt>' + a + '</dt><dd>' + b + '</dd>').join('') + '</dl>'
     + '<div class="sum__tot"><span>סה״כ</span><span>' + (isGuest() ? '<b>₪' + fmt(t) + '</b><small>(' + fmt(t) + ' נק׳)</small>' : '<b>' + fmt(t) + ' נק׳</b><small>(₪' + fmt(t) + ')</small>') + '</span></div>'
     /* 18.10: what is paid today, first and largest; the rest, quieter, under it */
     + '<div class="sum__dep"><div class="sd__now"><span class="sd__lbl">היום משלמים רק<em>מקדמה של 20%</em></span><span class="sd__amt"><b>' + fmt(dep) + '<small>נק׳</small></b><i>(₪' + fmt(dep) + ')</i></span></div>'   /* points first, ₪ small beside, as in the total */
-    +   '<div class="sd__later"><span>את היתרה משלמים עד 14.3.2027</span><span class="sd__rest"><b>' + fmt(t - dep) + ' נק׳</b><i>(₪' + fmt(t - dep) + ')</i></span></div>'
-    +   '<p class="sd__fine">' + IC.info + '<span><b>סכום היתרה (80%)</b> ייקבע לפי שער ההמרה ביום החיוב, ולכן הוא עשוי להשתנות. נעדכן אותך ב־SMS לפני החיוב.</span></p></div></article>'
-    + (S.step ? '' : '<details class="card acc"><summary>מה כלול בחבילה</summary><ul><li>כרטיס להופעה לפי החבילה</li><li>2 לילות במלון</li><li>טיסות הלוך־חזור ישירות</li><li>כבודה 23 ק״ג + טרולי</li></ul></details>'
+    +   '<div class="sd__later"><span>את היתרה משלמים עד ' + DUE + '</span><span class="sd__rest"><b>' + fmt(t - dep) + ' נק׳</b><i>(₪' + fmt(t - dep) + ')</i></span></div>'
+    +   '<p class="sd__fine">' + IC.info + '<span><b>סכום היתרה (80%)</b> ייקבע לפי שער ההמרה ביום החיוב, ולכן הוא עשוי להשתנות. נעדכן אתכם ב־SMS לפני החיוב.</span></p></div></article>'
+    + (S.step ? '' : '<details class="card acc"><summary>מה כלול בחבילה</summary><ul><li>כרטיס ל' + EV.kind.slice(1) + ' לפי החבילה</li><li>' + NIGHTS + ' לילות במלון</li><li>טיסות הלוך־חזור ישירות</li><li>כבודה 23 ק״ג + טרולי</li></ul></details>'
     + '<details class="card acc"><summary>תנאי שינוי וביטול</summary><p>כשמזמינים משלמים מקדמה של 20% ממחיר החבילה, ואת היתרה משלימים עד 60 יום לפני היציאה.</p><p class="acc__h"><b>כמה עולה לבטל?</b></p><ul class="acc__terms"><li><b>מיד אחרי ההזמנה:</b> אפשר לבטל לפי חוק הגנת הצרכן, בתנאים שהחוק קובע.</li><li><b>מסוף התקופה שבחוק ועד 60 יום לפני היציאה:</b> דמי הביטול הם המקדמה בלבד (20% ממחיר החבילה).</li><li><b>ב־60 הימים שלפני היציאה:</b> דמי הביטול הם מחיר החבילה המלא (100%).</li></ul></details>');
 }
 
 /* ================= the five steps ================= */
 const radio = (checked, id, inner, cls) => '<div class="opt ' + (cls || '') + '" role="radio" tabindex="0" aria-checked="' + checked + '" data-pick="' + id + '">' + inner + '</div>';
-function arena(z) {
+function arena(z) {   /* 18.10: the seating map for every dream (one map for now, tinted by the package) */
   /* Figma only has the map for category 3 (the side blocks, in green); the other packages tint the same picture for now */
-  return '<div class="arena" data-z="' + (z || '') + '"><img src="assets/flow/stage-map.png" alt="מפת האולם · La Défense Arena"></div>';
+  return '<div class="arena" data-z="' + (z || '') + '"><img src="assets/flow/stage-map.png" alt="מפת המקומות"></div>';
 }
 /* step 5, part 1 — who is it for. Open until it's filled, then folded to one line */
 function whoHTML() {
@@ -1895,7 +2003,7 @@ const CHEV = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"
 function instHTML(t) {
   const opts = [1, 3, 6, 12].map(n => ({ n, count: n === 1 ? 'תשלום 1' : n + ' תשלומים', per: n === 1 ? '' : n + ' x ₪' + fmt(Math.ceil(t / n)), total: '₪' + fmt(t) }));
   const cur = opts.find(o => o.n === S.inst) || opts[0];
-  return '<section class="pin" aria-labelledby="pin-t"><div class="pin__hd"><h5 id="pin-t">מספר תשלומים</h5><p id="pin-s">בחר מספר תשלומים</p></div>'
+  return '<section class="pin" aria-labelledby="pin-t"><div class="pin__hd"><h5 id="pin-t">מספר תשלומים</h5><p id="pin-s">בחרו מספר תשלומים</p></div>'
     + '<div class="pin__sel"><button type="button" class="pin__trig" data-instfold aria-haspopup="listbox" aria-expanded="' + !!S.instOpen + '" aria-labelledby="pin-t pin-s">'
     +   '<span class="pin__v"><span><bdi dir="ltr">' + cur.n + '</bdi> ' + (cur.n === 1 ? 'תשלום' : 'תשלומים') + '</span><bdi dir="ltr">' + cur.total + '</bdi></span>' + CHEV + '</button>'
     + (S.instOpen ? '<ul class="pin__list" role="listbox">' + opts.map(o => '<li role="option" data-inst="' + o.n + '" aria-selected="' + (o === cur) + '">'
@@ -1916,10 +2024,10 @@ function payHTML() {
         + (S.pay === 'dep' ? '<ol class="pay__plan">'
           + '<li><span class="pp__tx"><b>תשלום מקדמה</b></span><span class="pp__v"><b>' + fmt(dep) + '</b> נקודות קיימות</span></li>'
           + '<li><span class="pp__tx"><b>היתרה</b><small>ישולמו 60 יום לפני האירוע, לפי יתרת הנקודות ביום החיוב</small></span><span class="pp__v"><b>' + fmt(t - dep) + '</b> נקודות או ש״ח</span></li>'
-          + '</ol><p class="pay__fine">' + IC.info + 'היה ולא תצבור נקודות עתידיות, תחויב בסכום היתרה בשקלים.</p>' : ''), 'opt--wide');
+          + '</ol><p class="pay__fine">' + IC.info + 'אם לא תצברו מספיק נקודות עתידיות, תחויבו ביתרה בשקלים.</p>' : ''), 'opt--wide');
     return (g ? '' : '<div class="card"><h2>נקודות FlyAll</h2><div class="toggle" style="margin-top:12px"><span>תשלום בנקודות קיימות <b>(' + fmt(HAVE) + ' נק׳)</b></span>'
       + '<button class="sw" type="button" role="switch" aria-checked="' + S.usePts + '" data-pts aria-label="תשלום בנקודות"></button></div></div>')
-      + '<div class="card pay"><h2>איך תרצה לשלם?</h2><div style="margin-top:12px">'
+      + '<div class="card pay"><h2>איך תרצו לשלם?</h2><div style="margin-top:12px">'
       + (g ? '' : depOpt)
       + radio(S.pay === 'full', 'full', '<span class="radio"></span><div class="opt__b"><h4>תשלום מלא עכשיו</h4>'
         + (g ? '<p><b>₪' + fmt(t) + '</b> בכרטיס אשראי</p>' : '<p><b>' + fmt(t) + ' נק׳</b> (₪' + fmt(t) + '), בנקודות ובכסף</p>')
@@ -1927,6 +2035,7 @@ function payHTML() {
       + (g ? depOpt : '')
       + '</div></div>'
       + '<div class="card"><h2>פרטי תשלום</h2><p class="sub due">היום מחויב: <b>₪' + fmt((S.pay === 'dep' ? dep : t) - fromPts) + '</b>' + (fromPts ? ' + ' + fmt(fromPts) + ' נק׳' : '') + '</p>'
+      + (S.pay === 'dep' ? '<p class="due__why">' + IC.info + '<span>פרטי הכרטיס נדרשים לחיוב היתרה, 60 יום לפני האירוע. היום לא תחויבו מעבר למקדמה.</span></p>' : '')
       + '<div class="fields"><div><label for="cc">מספר כרטיס</label><input id="cc" inputmode="numeric" placeholder="1234 5678 9012 3456" autocomplete="off"></div>'
       + '<div class="two"><div><label for="exp">תוקף</label><input id="exp" placeholder="MM/YY" autocomplete="off"></div><div><label for="cvv">CVV</label><input id="cvv" inputmode="numeric" placeholder="123" autocomplete="off"></div></div>'
       + '<div><label for="nm">שם בעל הכרטיס</label><input id="nm" placeholder="' + (g ? 'דניאל לוי' : 'ענת ישראלי') + '" autocomplete="off" style="direction:rtl"></div></div>'
@@ -1938,7 +2047,7 @@ const STEP_UI = [
   /* 1 · package */
   () => '<div class="card pax"><div><h2>כמה נוסעים?</h2><p class="sub">המחיר לכל נוסע</p></div>'
       + '<div class="stepper"><button type="button" data-pax="1" aria-label="נוסע נוסף">+</button><output>' + S.pax + '</output><button type="button" data-pax="-1" aria-label="פחות נוסעים"' + (S.pax <= 1 ? ' disabled' : '') + '>−</button></div></div>'
-      + '<div class="card"><h2>בחירת חבילה</h2><p class="sub">החבילה קובעת את המקום בהופעה. מתחייבים על ישיבה בזוגות, והכרטיס יישלח אליך 7 ימים לפני המועד.</p>'
+      + '<div class="card"><h2>בחירת חבילה</h2><p class="sub">החבילה קובעת את המקום ב' + EV.kind.slice(1) + '. מתחייבים על ישיבה בזוגות, והכרטיס יישלח אליכם 7 ימים לפני המועד.</p>'
       + arena((find(PACKS, S.pack) || {}).z)
       + PACKS.map(p => radio(S.pack === p.id, p.id,
           '<span class="radio"></span><div class="opt__b"><h4><i class="dot" style="background:' + p.color + '"></i>' + p.name + ' · ' + p.zone + '</h4><p>' + p.desc + '</p>'
@@ -1947,28 +2056,30 @@ const STEP_UI = [
         + '<div class="pkf__tot"><dt>סה״כ לנוסע</dt><dd>' + pts(BASE + p.up) + '</dd></div></dl></div>')).join('')
       + '</div>',
   /* 2 · hotel */
-  () => '<div class="card"><h2>בחירת מלון</h2><p class="sub">2 לילות, 13–15.5.2027</p><div style="margin-top:14px">'
+  () => '<div class="card"><h2>בחירת מלון</h2><p class="sub">' + NIGHTS + ' לילות, ' + DATES + '</p><div style="margin-top:14px">'
       + HOTELS.map(h => radio(S.hotel === h.id, h.id,
           '<div class="lodge__img" style="background-image:url(' + h.img + ')">' + (h.up ? '' : '<span class="pill">כלול בחבילה</span>') + '</div>'
         + '<div class="opt__b"><h4>' + h.name + '</h4><p><span class="stars">' + '★'.repeat(h.stars) + '</span><span class="score">' + h.score + '</span>(' + fmt(h.reviews) + ')</p><p>' + h.where + '</p>'
         + h.perks.map(x => '<span class="perk">' + x + '</span>').join('')
-        + '<div class="opt__f">' + (h.up ? pts(h.up, true) : pts(0, true)) + '</div></div><span class="radio"></span>', 'lodge')).join('')
+        + '<div class="opt__f">' + (h.up ? pts(h.up, true) : '<span class="pts pts--inc">כלול</span>') + '</div></div><span class="radio"></span>', 'lodge')).join('')
       + '</div></div>',
   /* 3 · room */
   () => {
     const h = find(HOTELS, S.hotel);
     return '<div class="card"><h2>בחירת חדר · ' + h.name + '</h2><p class="sub">' + S.pax + (S.pax > 1 ? ' נוסעים' : ' נוסע') + ' · אפשר לשלב כמה חדרים</p><div style="margin-top:14px">'
-      + ROOMS.map(r => '<div class="opt room" aria-checked="' + (S.rooms[r.id] > 0) + '">'
+      + ROOMS.map(r => { const fits = r.guests <= S.pax, more = fits && roomCount() < S.pax && roomCap() < S.pax;
+        return '<div class="opt room' + (fits ? '' : ' room--off') + '" aria-checked="' + (S.rooms[r.id] > 0) + '"' + (fits ? '' : ' aria-disabled="true"') + '>'
         + '<div class="lodge__img" style="background-image:url(' + r.img + ')"></div>'
-        + '<div class="opt__b" style="padding:14px 16px"><h4>' + r.name + '</h4><p>' + r.size + '</p><p>עד ' + r.guests + ' אורחים</p>'
-        + '<div class="opt__f">' + pts(r.up, true) + '<div class="stepper room__qty"><button type="button" data-room="' + r.id + '" data-d="1" aria-label="עוד חדר">+</button><output>' + S.rooms[r.id] + '</output>'
-        + '<button type="button" data-room="' + r.id + '" data-d="-1" aria-label="חדר אחד פחות"' + (S.rooms[r.id] ? '' : ' disabled') + '>−</button></div></div></div></div>').join('')
+        + '<div class="opt__b" style="padding:14px 16px"><h4>' + r.name + '</h4><p>' + r.size + '</p><p>' + (r.guests === 1 ? 'לאורח אחד' : 'ל־' + r.guests + ' אורחים') + '</p>' + (fits ? '' : '<p class="room__why">מתאים להזמנה של ' + r.guests + ' נוסעים ומעלה</p>')
+        + '<div class="opt__f">' + (r.up ? pts(r.up, true) : '<span class="pts pts--inc">כלול</span>') + '<div class="stepper room__qty"><button type="button" data-room="' + r.id + '" data-d="1" aria-label="עוד חדר"' + (more ? '' : ' disabled') + '>+</button><output>' + S.rooms[r.id] + '</output>'
+        + '<button type="button" data-room="' + r.id + '" data-d="-1" aria-label="חדר אחד פחות"' + (S.rooms[r.id] ? '' : ' disabled') + '>−</button></div></div></div></div>'; }).join('')
+      + (roomCount() && roomCap() >= S.pax ? '<p class="room__ok">' + IC.check + 'יש מקום לכל ' + (S.pax > 1 ? S.pax + ' הנוסעים' : 'הנוסע') + '</p>' : '')
       + (roomCount() && roomCap() < S.pax ? '<p class="warn">החדרים שבחרת מתאימים ל־' + roomCap() + ' אורחים. הוסיפו חדר כדי שיהיה מקום לכל ' + S.pax + ' הנוסעים.</p>' : '')
       + '</div></div>';
   },
   /* 4 · flight preview */
   /* one flight comes with the package: shown as information, nothing to choose */
-  () => '<div class="card"><h2>הטיסות שלך</h2><p class="sub">טיסות ישירות הלוך־חזור, כלולות בחבילה</p><div style="margin-top:14px">'
+  () => '<div class="card"><h2>הטיסות שלכם</h2><p class="sub">טיסות ישירות הלוך־חזור, כלולות בחבילה</p><div style="margin-top:14px">'
       + FLIGHTS.slice(0, 1).map(f => ('<div class="opt flight flight--info"><div class="opt__b"><span class="pill">כלול בחבילה</span>'
         + f.legs.map(l => '<div class="air" style="margin-top:14px"><i>EL AL</i><span>' + l[0] + '</span></div>'
           + '<div class="leg"><div class="leg__pt"><b>' + l[1] + '</b><small>' + l[2] + '</small></div><div class="leg__mid">ישירה<i></i>' + l[5] + '</div><div class="leg__pt"><b>' + l[3] + '</b><small>' + l[4] + '</small></div></div>').join('')
@@ -1983,11 +2094,16 @@ const STEP_UI = [
       + '<svg class="booked__sky" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bkG" gradientUnits="userSpaceOnUse" x1="380" y1="0" x2="20" y2="0"><stop offset="0" stop-color="#1B5ECE"/><stop offset=".5" stop-color="#824AEA"/><stop offset="1" stop-color="#F63DE4"/></linearGradient></defs>'
       + '<path class="booked__arc" d="M380 104 C 300 0, 100 0, 20 104"/></svg>'
       + '<span class="booked__plane" aria-hidden="true"><svg><use href="#plane"/></svg></span>'
-      + '<span class="booked__ic">' + IC.check + '</span><h2>' + (isGuest() ? (S.f.fn || 'דניאל') : 'ענת') + ', החלום מוזמן לך!</h2>'
-      + '<p class="sub">הזמנה מס׳ FA-270514 · אישור נשלח ל־' + (S.f.mail || 'המייל שלך') + '</p>'
+      + '<span class="booked__ic">' + IC.check + '</span><h2>' + (isGuest() ? (S.f.fn || 'דניאל') : 'ענת') + ', החלום מוזמן!</h2>'
+      + '<p class="sub">הזמנה מס׳ FA-270514 · אישור נשלח ל־' + (S.f.mail || 'המייל שלכם') + '</p>'
       + '<ul class="booked__list"><li><span>' + (S.pay === 'dep' ? 'מקדמה של ' + fmt(dep) + ' נק׳' : fmt(t) + ' נק׳, התשלום המלא') + '</span><b>שולם היום</b></li>'
-      + (S.pay === 'dep' ? '<li><span>היתרה של ' + fmt(t - dep) + ' נק׳, מנקודות עתידיות ובכסף</span><b>עד 14.3.2027</b></li>' : '')
-      + '<li><span>הכרטיסים להופעה יישלחו לכתובת המייל שלך</span><b>7 ימים לפני</b></li></ul></div>';
+      + (S.pay === 'dep' ? '<li><span>היתרה של ' + fmt(t - dep) + ' נק׳, מנקודות עתידיות ובכסף</span><b>עד ' + DUE + '</b></li>' : '')
+      + '<li><span>הכרטיסים ל' + EV.kind.slice(1) + ' יישלחו לכתובת המייל שלכם</span><b>7 ימים לפני</b></li></ul>'
+      /* 18.10: what comes next: the trip in the calendar, and the booking in the personal area */
+      + '<div class="bk-rows">'
+      +   '<button class="bk-row" type="button" data-ics>' + IC.cal + '<span>הוספה ליומן</span><svg class="bk-row__go" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>'
+      +   '<a class="bk-row" href="#personal"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>לצפייה בהזמנה באזור האישי</span><svg class="bk-row__go" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></a>'
+      + '</div></div>';
   }
 ];
 const canGo = () => [
@@ -2068,21 +2184,44 @@ function render(scroll) {
   grid.appendChild(main);
   app.appendChild(grid);
   requestAnimationFrame(drawRing);
-  if (scroll) window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-  if (S.step === LAST) celebrate();
+  /* 18.10: a new step opens at its top, every time: an instant jump (the smooth one stopped short while the page re-laid out) */
+  if (scroll) { window.scrollTo(0, 0); requestAnimationFrame(() => window.scrollTo(0, 0)); }
+  if (S.step === LAST) { celebrate(); spendPoints(); }
   /* mobile, from the second step on: the photo card goes, and the ring sticks under the stepper */
   document.body.classList.toggle('past1', S.step > 0);
   document.body.classList.toggle('booked-on', S.step === LAST);   /* 18.10: once paid, the ring and the summary step aside */
   const stH = () => document.documentElement.style.setProperty('--st-h', steps.getBoundingClientRect().height + 'px');
   stH(); requestAnimationFrame(stH);
 }
+/* 18.10: the deposit paid in points leaves the balance: the header here, and every page after it in this visit */
+function spendPoints() {
+  if (S.spent || isGuest() || !S.usePts) return;
+  S.spent = true;
+  const key = 'flyall-paid:' + EV.name + ':' + EV.a;   /* a reload of the confirmation must not pay twice */
+  try { if (sessionStorage.getItem(key)) return; } catch (e) {}
+  const t = total(), paid = Math.min(HAVE, S.pay === 'dep' ? Math.round(t * 0.2) : t), left = HAVE - paid;
+  try { sessionStorage.setItem('flyall-left', String(left)); sessionStorage.setItem(key, '1'); } catch (e) {}
+  const n = fmt(left);
+  document.querySelectorAll('.fa-points__value, .fa-points__say').forEach(e => { e.textContent = n; });
+  document.querySelectorAll('.fa-dh__points b').forEach(b => { b.innerHTML = b.innerHTML.replace(/\d[\d,]*/, n); });
+}
 function go(i) {
   S.step = Math.max(0, Math.min(LAST, i));
   history.replaceState(null, '', '#' + (S.step + 1));
   render(true);
 }
+function addToCalendar() {
+  const ymd = d => '2027' + d.split('.').reverse().join('');
+  const end = (() => { const x = DM(EV.b); x.setDate(x.getDate() + 1); return x.getFullYear() + String(x.getMonth() + 1).padStart(2, '0') + String(x.getDate()).padStart(2, '0'); })();
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//FlyAll//Dream Store//HE', 'BEGIN:VEVENT', 'UID:FA-270514@flyall',
+    'DTSTAMP:20261018T000000Z', 'DTSTART;VALUE=DATE:' + ymd(EV.a), 'DTEND;VALUE=DATE:' + end,
+    'SUMMARY:' + EV.name + (EV.city ? ' · ' + EV.city : '') + ' · FlyAll', 'DESCRIPTION:הזמנה מס׳ FA-270514', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const a = el('a'); a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar;charset=utf-8' })); a.download = 'FlyAll-dream.ics';
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
 app.addEventListener('click', e => {
   const t = e.target;
+  if (t.closest('[data-ics]')) { e.preventDefault(); return addToCalendar(); }
   if (t.closest('[data-instfold]')) { e.preventDefault(); S.instOpen = !S.instOpen; return render(); }
   if (t.closest('[data-inst]')) { S.inst = +t.closest('[data-inst]').dataset.inst; S.instOpen = false; return render(); }
   if (t.closest('.pin')) { e.preventDefault(); return; }   /* clicks inside the installments card stay there */   /* before the option it sits in */
@@ -2101,7 +2240,7 @@ app.addEventListener('click', e => {
   }
   /* past 6 the booking isn't online any more — a drawer hands the group to a person */
   if (t.closest('[data-pax="1"]') && S.pax >= 6) return GROUP.open();
-  if (t.closest('[data-pax]')) { S.pax = Math.max(1, Math.min(6, S.pax + +t.closest('[data-pax]').dataset.pax)); return render(); }
+  if (t.closest('[data-pax]')) { S.pax = Math.max(1, Math.min(6, S.pax + +t.closest('[data-pax]').dataset.pax)); Object.keys(S.rooms).forEach(k => { S.rooms[k] = 0; }); return render(); }
   if (t.closest('[data-room]')) { const b = t.closest('[data-room]'); S.rooms[b.dataset.room] = Math.max(0, Math.min(4, S.rooms[b.dataset.room] + +b.dataset.d)); return render(); }
   if (t.closest('[data-pts]')) { S.usePts = !S.usePts; return render(); }
   /* the details fold, and the payment opens under them — same step, no new page */

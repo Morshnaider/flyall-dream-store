@@ -2,13 +2,13 @@
 <html lang="he" dir="rtl">
 <head>
 <script>
-/* 18.10: the clean version (?clean=1): no demo switches, one story — signed in, earning points, BNPL on.
-   It holds for the whole visit in this tab; ?clean=0 brings the switches back */
+/* 18.10: the shared link is the clean version: no demo switches, one story — signed in, earning points, BNPL on.
+   ?demo=1 brings the switches back for the whole visit in this tab (?demo=0 hides them again) */
 (function(){ try {
-  var q = new URLSearchParams(location.search).get('clean');
-  if (q === '1') sessionStorage.setItem('flyall-clean', '1');
-  if (q === '0') sessionStorage.removeItem('flyall-clean');
-  if (sessionStorage.getItem('flyall-clean')) {
+  var q = new URLSearchParams(location.search).get('demo');
+  if (q === '1') sessionStorage.setItem('flyall-demo', '1');
+  if (q === '0') sessionStorage.removeItem('flyall-demo');
+  if (!sessionStorage.getItem('flyall-demo')) {
     document.documentElement.classList.add('clean');
     localStorage.setItem('flyall-who', 'user'); localStorage.setItem('flyall-points', 'earn'); localStorage.setItem('flyall-bnpl', 'on');
   }
@@ -1403,7 +1403,7 @@ html[data-points="enough"] .pts-earn,html:not([data-points="enough"]) .pts-enoug
 
 /* --- the arc: one soft curve that takes off from bottom-start and levels out at the dream --- */
 .bn{padding:40px 20px 34px}
-/* the headline speaks like "החופשה שלך, עד הפרט האחרון" in the lobby: light Ploni, the promise in bold brand gradient */
+/* the headline speaks like "החופשה שלכם, עד הפרט האחרון" in the lobby: light Ploni, the promise in bold brand gradient */
 .bn__h{margin:14px auto 0;font:300 34px/1.1 'Ploni',var(--ds-font-btn);color:var(--ds-black)}
 .bn__h b{font-weight:700;padding:.1em 0;background-image:var(--ds-gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
 .bn__sub{margin:10px auto 0;max-width:32ch;font:400 15px/1.45 var(--ds-font);color:#5B6170}
@@ -2149,6 +2149,50 @@ html[data-bnpl="off"] body.is-guest .xp__deal,html[data-bnpl="off"][data-points=
   background:radial-gradient(80% 70% at 100% 0%,#FBEAF8,transparent 70%),radial-gradient(80% 70% at 0% 100%,#E8F0FF,transparent 70%),#fff}
 .lcl__box .fa-card{margin-bottom:6px}
 @media (min-width:1024px){ .lcl__box{max-width:760px;padding:48px 56px 44px;gap:24px;border-radius:32px} }
+/* 18.10: the thumb's centre travels 14px in from each end, so the colour fill and the "my spend" dot follow the same path:
+   all three sit on exactly the same value */
+.cal__range::-webkit-slider-runnable-track{background:linear-gradient(to left,#1B5ECE,#824AEA calc(calc(14px + (100% - 28px) * var(--pf, 0)) * .6),#F63DE4 calc(14px + (100% - 28px) * var(--pf, 0)),#E6E8EF calc(14px + (100% - 28px) * var(--pf, 0)))}
+.cal__range::-moz-range-track{background:linear-gradient(to left,#1B5ECE,#824AEA calc(calc(14px + (100% - 28px) * var(--pf, 0)) * .6),#F63DE4 calc(14px + (100% - 28px) * var(--pf, 0)),#E6E8EF calc(14px + (100% - 28px) * var(--pf, 0)))}
+.cc--dark .cal__range::-webkit-slider-runnable-track{background:linear-gradient(to left,#1B5ECE,#824AEA calc(calc(14px + (100% - 28px) * var(--pf, 0)) * .6),#F63DE4 calc(14px + (100% - 28px) * var(--pf, 0)),rgba(255,255,255,.16) calc(14px + (100% - 28px) * var(--pf, 0)))}
+.cc--dark .cal__range::-moz-range-track{background:linear-gradient(to left,#1B5ECE,#824AEA calc(calc(14px + (100% - 28px) * var(--pf, 0)) * .6),#F63DE4 calc(14px + (100% - 28px) * var(--pf, 0)),rgba(255,255,255,.16) calc(14px + (100% - 28px) * var(--pf, 0)))}
+.cal__range::-moz-range-thumb{box-sizing:border-box;width:28px;height:28px}
+.cal__track .cal__mark{inset-inline-start:calc(14px + (100% - 28px) * var(--mf, 0));margin-inline-start:-5px}
+/* 18.10: share, beside the close button; and its toast */
+.reel__share{position:absolute;top:32px;right:68px;z-index:6;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;cursor:pointer;
+  color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.reel__share svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.reel__share:active{transform:scale(.92)}
+.reel.how-open .reel__share{opacity:0;pointer-events:none}
+@media (min-width:1024px){ .reel__share{top:28px;right:auto;left:84px} }
+.fa-toast{position:fixed;z-index:2000;left:50%;bottom:28px;transform:translate(-50%,12px);opacity:0;padding:12px 18px;border-radius:14px;
+  background:#040F21;color:#fff;font:600 15px/1.2 var(--ds-font);box-shadow:0 10px 30px rgba(4,15,33,.3);transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap}
+.fa-toast.on{opacity:1;transform:translate(-50%,0)}
+/* 18.10: desktop only: the card section a size up, wide enough for the page */
+@media (min-width:1024px){
+  .lcl{padding:72px 40px 64px}
+  .lcl__box{max-width:1120px;padding:64px 80px 60px;gap:28px;border-radius:36px}
+  .lcl__box .fa-card{transform:rotate(-6deg) scale(1.45);margin:18px 0 22px}
+  .lcl__hd{gap:16px}
+  .lcl__hd .rb__h{font-size:64px;line-height:1.08}
+  .lcl__hd .rb__h b{display:inline}
+  .lcl__hd .rb__k{font-size:22px}
+  .lcl__open{height:58px;padding:0 34px;font-size:20px;border-radius:29px}
+  .lcl__open svg{width:22px;height:22px}
+}
+/* 18.10: the music button, beside share and close */
+.reel__snd{position:absolute;top:32px;right:120px;z-index:6;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;cursor:pointer;
+  color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.reel__snd svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.reel__snd .on,.reel__snd[aria-pressed="true"] .off{display:none}
+.reel__snd[aria-pressed="true"] .on{display:block}
+.reel__snd:active{transform:scale(.92)}
+.reel.how-open .reel__snd{opacity:0;pointer-events:none}
+@media (min-width:1024px){ .reel__snd{top:28px;right:auto;left:136px} }
+/* 18.10: the Spotify button: a small dark pill, Spotify's green mark */
+.xsong{display:inline-flex;align-items:center;gap:8px;height:36px;margin:14px 0 0;padding:0 14px 0 10px;border-radius:18px;text-decoration:none;color:#fff;
+  font:700 13px/1 var(--ds-font);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.xsong svg{width:20px;height:20px;flex:none}
+.xsong:hover{background:rgba(255,255,255,.18)}
 </style>
 </head>
 <body data-opt="D">
@@ -2215,7 +2259,7 @@ html[data-bnpl="off"] body.is-guest .xp__deal,html[data-bnpl="off"][data-points=
       </a>
     </div>
 
-    <a class="fa-logo" href="#home" aria-label="FlyAll">
+    <a class="fa-logo" href="home.html" aria-label="FlyAll">
       <svg viewBox="154.555 18.998 88.889 26.009" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="faLogoGrad" x1="160.842" y1="42.732" x2="176.749" y2="20.8419"
@@ -2266,7 +2310,7 @@ html[data-bnpl="off"] body.is-guest .xp__deal,html[data-bnpl="off"][data-points=
           <img src="assets/header-desktop/coins.svg" width="32" height="32" alt="">
         </a>
       </div>
-      <a class="fa-dh__logo" href="#home" aria-label="FlyAll">
+      <a class="fa-dh__logo" href="home.html" aria-label="FlyAll">
         <img src="assets/header-desktop/logo.svg" width="136.754" height="40.0105" alt="">
       </a>
       <div class="fa-dh__end">
@@ -2282,6 +2326,15 @@ html[data-bnpl="off"] body.is-guest .xp__deal,html[data-bnpl="off"][data-points=
   </div>
 
 </header>
+<script>
+/* 18.10: after a booking paid in points, the balance shown everywhere is what is left (for this visit, in this tab) */
+(function(){ try {
+  var left = sessionStorage.getItem('flyall-left'); if (left === null) return;
+  var n = (+left).toLocaleString('en-US');
+  document.querySelectorAll('.fa-points__value, .fa-points__say').forEach(function(e){ e.textContent = n; });
+  document.querySelectorAll('.fa-dh__points b').forEach(function(b){ b.innerHTML = b.innerHTML.replace(/\d[\d,]*/, n); });
+} catch (e) {} })();
+</script>
 
 
 <main id="stage"></main>
@@ -2289,7 +2342,7 @@ html[data-bnpl="off"] body.is-guest .xp__deal,html[data-bnpl="off"][data-points=
 
 <script>
 const ARC   = [{"src": "POV%20Videos/0_Football_Soccer_720x1280.mp4", "logos": ["barcelona.png", "real-madrid.png"], "event": "אל קלאסיקו · מדריד", "pts": "6,200", "date": "9 במאי 2027", "tag": "כרטיס + 2 לילות", "dates": ["9 במאי"]}, {"src": "POV%20Videos/0_Concert_Crowd_720x1280.mp4", "logos": ["celine-dion.png"], "event": "סלין דיון · פריז", "pts": "5,700", "date": "מאי 2027", "tag": "כרטיס VIP + מלון", "dates": ["8.5", "12.5", "14.5", "15.5", "19.5", "21.5", "22.5", "26.5", "28.5", "29.5"]}, {"src": "POV%20Videos/0_Festival_Music_Festival_720x1280.mp4", "logos": ["tomorrowland.png"], "event": "Tomorrowland · בלגיה", "pts": "6,100", "date": "יולי 2027", "tag": "3 ימי פסטיבל", "dates": ["סופ״ש ראשון · יולי", "סופ״ש שני · יולי"]}, {"src": "POV%20Videos/0_Football_Stadium_720x1280.mp4", "logos": ["champions-league.png"], "event": "גמר ליגת האלופות · מדריד", "pts": "6,800", "date": "5 ביוני 2027", "tag": "כרטיס + טיסה", "dates": ["5 ביוני"]}, {"src": "POV%20Videos/0_Concert_Music_Festival_720x1280.mp4", "logos": ["tomorrowland.png"], "event": "Tomorrowland Winter · אלפ ד׳ואז", "pts": "6,400", "date": "20–27 במרץ 2027", "tag": "שבוע פסטיבל + לינה", "dates": ["20–27 במרץ"]}, {"src": "POV%20Videos/0_Musician_Playing_Guitar_720x1280.mp4", "logos": [], "event": "אואזיס · בריטניה ואירופה", "pts": "5,200", "date": "מאי–ספטמבר 2027", "tag": "כרטיס + 2 לילות", "dates": ["גלזגו · מאי", "מנצ׳סטר · יוני", "מינכן · יולי", "רומא · יולי", "נבוורת׳ · ספטמבר"]}];
-const CTA_LABEL = 'מזמינים עכשיו';
+const CTA_LABEL = 'שמרו לי מקום';
 const ARROW    = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>';
 const ARROW_UL = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17L7 7M7 7h9M7 7v9"/></svg>';
 
@@ -2350,7 +2403,7 @@ function buildArc(){
   const lead = el('div','lead',
     '<h2><span class="l0">ענת,</span><span class="l1">מה החלום</span><span class="l2">שלך <b>היום?</b></span></h2>'+
     '<p class="lead__sub">הופעות, משחקי כדורגל, חופשות וחוויות<br> שמחכות להפוך למציאות</p>'+
-    '<button class="ds-btn ds-btn--primary lead__cta">גלו את כל החלומות'+ARROW+'</button>');
+    '<button class="ds-btn ds-btn--primary lead__cta">גלו את כל החוויות'+ARROW+'</button>');
   lead.querySelector('.lead__cta').addEventListener('click', () => { location.href = 'pov-all-v2.html'; });
   root.appendChild(lead);
   const track = el('div','track');
@@ -2568,8 +2621,8 @@ function buildAsk(){
   const box = el('section','ask');
   box.id = 'cats';
   const LINES = [
-    ['t','מה אם החוויה'], ['t','שתמיד רצית'],
-    ['b','מחכה לך ממש'], ['b','כאן?'],
+    ['t','מה אם החוויה'], ['t','שתמיד רציתם'],
+    ['b','מחכה לכם ממש'], ['b','כאן?'],
   ];
   const head = el('h2','ask__line', LINES.map(([cls, txt]) =>
     '<span class="' + cls + '">' +
@@ -2590,7 +2643,7 @@ function buildAsk(){
       '<circle class="bg" cx="46" cy="46" r="' + R + '" fill="none" stroke-width="7"/>' +
       '<circle class="fg" cx="46" cy="46" r="' + R + '" fill="none" stroke="url(#meG)" stroke-width="7" stroke-linecap="round"/></svg>' +
       '<b aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></b></div>' +
-    '<p><strong>ענת, הדרך לחלום כבר התחילה</strong>כל קנייה בכרטיס מקרבת אותך לחוויה</p>');
+    '<p><strong>הדרך לחלום כבר התחילה</strong>כל קנייה בכרטיס מקרבת אתכם לחוויה</p>');
   /* guest: the same slot invites to the card instead */
   const join = el('div','ask__join',
     '<div class="ask__card" aria-hidden="true"><b>FlyAll</b><i></i><span>•••• 2026</span></div>' +
@@ -2729,10 +2782,10 @@ const CHV_R = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" strok
 function buildPerks(){
   const box = el('section','perks');
   const head = el('div','perks__head',
-    '<h2><span class="ln">החופשה שלך,</span><span class="ln"><b>עד הפרט</b></span><span class="ln"><b>האחרון</b></span></h2>' +
+    '<h2><span class="ln">החופשה שלכם,</span><span class="ln"><b>עד הפרט</b></span><span class="ln"><b>האחרון</b></span></h2>' +
     '<p class="perks__sub ln">משדרגים את הדרך אל החלום, ומשלמים בנקודות, בכסף או גם וגם.</p>');
   head.appendChild(el('p','perks__wallet',
-    '<span><i aria-hidden="true"></i>הנקודות שלך</span><em>חוסכות לך כסף · <b>1 נק׳ = ₪1</b></em>'));
+    '<span><i aria-hidden="true"></i>הנקודות שלכם</span><em>חוסכות לכם כסף · <b>1 נק׳ = ₪1</b></em>'));
   box.appendChild(head);
 
   const rail = el('div','perks__rail');
@@ -2862,7 +2915,7 @@ const HAVE = (() => {
   const coins = document.querySelector('.fa-points__coins');
   return '<span class="rd__have__glint"></span>'
     + '<span class="rd__have__ic">' + (coins ? coins.outerHTML.replace('fa-points__coins', '') : '') + '</span>'
-    + '<span class="rd__have__tx"><b>יש לך ' + ENOUGH.toLocaleString('en-US') + ' נק׳</b>'
+    + '<span class="rd__have__tx"><b>יש לכם ' + ENOUGH.toLocaleString('en-US') + ' נק׳</b>'
     + '<span>מספיק לחבילת ' + pack + ', בלי לצבור עוד</span></span>'
     + '<button class="rd__have__go" type="button">לרכישה</button>';
 })();
@@ -3119,7 +3172,7 @@ function xmeHTML(d){
   return '<div class="xme"><span class="xme__ring" aria-hidden="true"><svg viewBox="0 0 92 92"><defs><linearGradient id="xmeG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B5ECE"/><stop offset=".5" stop-color="#824AEA"/><stop offset="1" stop-color="#F63DE4"/></linearGradient></defs>'
     + '<circle class="bg" cx="46" cy="46" r="40"/><circle class="fg" cx="46" cy="46" r="40" stroke-dasharray="' + C + '" stroke-dashoffset="' + (C * (1 - k)) + '"/></svg>'
     + '<b class="xme__n">' + Math.round(k * 100) + '%</b></span>'
-    + '<span class="xme__tx"><b>יש לך <span>' + nfmt(BALANCE) + '</span> נקודות קיימות</b><small>נשאר לך לצבור עוד <em>' + nfmt(Math.max(0, price - BALANCE)) + '</em> נקודות להגשמת החלום כולו</small><small class="xme__pp">לאדם בחדר זוגי</small></span>'
+    + '<span class="xme__tx"><b>יש לכם <span>' + nfmt(BALANCE) + '</span> נקודות קיימות</b><small>נשאר לך לצבור עוד <em>' + nfmt(Math.max(0, price - BALANCE)) + '</em> נקודות להגשמת החלום כולו</small><small class="xme__pp">לאדם בחדר זוגי</small></span>'
     + '<button class="xme__calc" type="button" aria-label="מחשבון נקודות" title="מחשבון נקודות"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8 7h8M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15v2.5M8.5 18h.01M12 18h.01"/></svg></button></div>';
 }
 /* E1 (18.10): the points card's calculator opens the booking flow's popup ("עד ההופעה"), measured against the card's dream.
@@ -3163,9 +3216,9 @@ function dreamCalc(price, kind = 'ההופעה'){   /* kind: ההופעה / המ
     const earn = spend * CALC_MONTHS * CALC_RATE, tot = have() + earn, left = Math.max(0, price - tot);
     q('.cal__amt').textContent = '₪' + nfmt(spend);
     range.value = spend;
-    range.style.setProperty('--p', ((spend - MIN) / (MAX - MIN) * 100).toFixed(1) + '%');
+    range.style.setProperty('--p', ((spend - MIN) / (MAX - MIN) * 100).toFixed(1) + '%'); range.style.setProperty('--pf', ((spend - MIN) / (MAX - MIN)).toFixed(4));
     roll(q('.cal__year'), earn);
-    q('.cal__with').textContent = 'ביחד עם ' + nfmt(have()) + ' הנקודות הקיימות שלך';
+    q('.cal__with').textContent = 'ביחד עם ' + nfmt(have()) + ' הנקודות הקיימות שלכם';
     q('.cal__all').textContent = nfmt(tot) + ' נק׳';
     const end = q('.cc__end');
     end.classList.toggle('ok', !left);
@@ -3207,6 +3260,11 @@ const nights = (a, b) => {
 };
 const SHIELD = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>';
 const BACK_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+/* 18.10: the experience's own song, in Spotify's free embedded player (a ~30s preview without Premium) */
+const SONGS = { 'סלין דיון': '33LC84JgLvK2KuW43MfaNq', 'אואזיס': '5qqabIl2vWzo9ApSC317sa', 'Tomorrowland': '67h07hnkKLSeAsRztG4J7r', 'Tomorrowland Winter': '67h07hnkKLSeAsRztG4J7r', 'גמר ליגת האלופות': '7HJidWHPoAXJhaKeAmqfF5' };
+const songOf = d => SONGS[d.event.split(' · ')[0]];
+/* 18.10: no player: just a small Spotify button that opens the experience's song in Spotify */
+const songHTML = d => { const id = songOf(d); return id ? '<a class="xsong" href="https://open.spotify.com/track/' + id + '" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#1ED760"/><path d="M6.6 9.4c3.7-1.1 7.6-.8 10.9 1M7.2 12.4c3-.9 6.1-.6 8.8.9M7.8 15.2c2.4-.7 4.8-.5 6.9.7" fill="none" stroke="#000" stroke-width="1.6" stroke-linecap="round"/></svg><span>האזינו ב־Spotify</span></a>' : ''; };
 function dealHTML(d){
   const price = +String(d.pts).replace(/[^0-9]/g, ''), dep = Math.round(price * .2);
   const xd = XD_ALL[d.event.split(' · ')[0]] || [];
@@ -3217,7 +3275,7 @@ function dealHTML(d){
     +   '<div class="xp__deal__top"><p class="xp__dep">' + SHIELD + 'היום משלמים רק <b>20% מקדמה</b></p>'
     +   '<button class="xp__how" type="button"><i>?</i><span>איך זה עובד</span></button></div>'
     /* 18.10: the line under the deposit is gone: the card above and "איך זה עובד" already say it */
-    +   '<p class="xp__enough"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>יש לך <b>' + nfmt(ENOUGH) + ' נק׳</b>, מספיק כדי לרכוש הכל בנקודות</span><i></i><i></i><i></i></p>'
+    +   '<p class="xp__enough"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>יש לכם <b>' + nfmt(ENOUGH) + ' נק׳</b>, מספיק כדי לרכוש הכל בנקודות</span><i></i><i></i><i></i></p>'
     +   '<div class="xd-in"><button class="xd-back" type="button">' + BACK_IC + 'חזרה</button>'
     +     '<h4 class="xd-h">מתי בא לכם <b>לטוס?</b></h4>'
     +     '<div class="xd-row">' + xd.map(([a, b, p], i) => '<button type="button" class="xd-t' + (p ? '' : ' out') + '" data-xd="' + i + '"' + (p ? '' : ' disabled') + '>'
@@ -3269,6 +3327,11 @@ function wireDeal(sl, d){
     xin.querySelectorAll('[data-xd]').forEach(n => n.classList.toggle('on', n === t));
     xin.querySelector('.xd-pick').innerHTML = '<span><bdi dir="ltr">' + a + '–' + b + '</bdi> · ' + nights(a, b) + ' לילות' + (city ? ' ב' + city.replace(/^ב/, '') : '') + '</span>';   /* 18.10: no price again here: the experience said it a moment ago */
     go.removeAttribute('aria-disabled');
+    /* 18.10: the booking flow opens on this dream: its name, city, dates, price and picture */
+    const [ttl, place] = d.event.split(' · '), stop = (String((d.dates || [])[+t.dataset.xd] || '').split(' · ')[1] ? String(d.dates[+t.dataset.xd]).split(' · ')[0] : '');
+    const q = new URLSearchParams({ ev: ttl, city: stop || place || '', kind: kindOf(d), a, b, p: String(p),
+      logo: (d.logos || []).join(','), img: d.poster || ('assets/posters/' + String(d.src || '').split('/').pop().replace('.mp4', '.jpg')) });
+    go.href = 'dream-flow-ring.html?' + q + '#1';
   });
   /* mobile: the sticky "קנה עכשיו" scrolls to the deal and opens the dates, then steps aside while the deal is in view */
   const sticky = sl.querySelector('.rd__go');
@@ -3431,7 +3494,7 @@ function calcPopup(host){   /* host: built open inside it, not as a popup */
     + '<div class="cc__top">' + FA_CARD + '<h4 class="cc__h">כמה נקודות <b>תצברו בשנה?</b></h4></div>'
     + '<div class="cal__row"><p>ההוצאה הממוצעת החודשית שלי</p><b class="cal__amt"></b></div>'
     + '<div class="cal__track"><input class="cal__range" type="range" min="' + MIN + '" max="' + MAX + '" step="500" aria-label="הוצאה חודשית בכרטיס">'
-    +   '<button class="cal__mark" type="button" aria-label="חזרה להוצאה הנוכחית שלי" style="--m:' + ((MY_SPEND - MIN) / (MAX - MIN) * 100).toFixed(1) + '%"></button></div>'
+    +   '<button class="cal__mark" type="button" aria-label="חזרה להוצאה הנוכחית שלי" style="--mf:' + ((MY_SPEND - MIN) / (MAX - MIN)).toFixed(4) + '"></button></div>'
     + '<div class="cal__ends"><span>₪' + nfmt(MIN) + '</span><span>₪' + nfmt(MAX) + '</span></div>'
     + '<div class="cal__res" aria-live="polite">'
     +   '<p class="cal__lbl">' + (host ? 'בשנה הקרובה' : 'נקודות עתידיות בשנה הקרובה') + '</p>'
@@ -3459,10 +3522,10 @@ function calcPopup(host){   /* host: built open inside it, not as a popup */
     const year = spend * 12 * CARD_RATE;
     q('.cal__amt').textContent = '₪' + nfmt(spend);
     range.value = spend;
-    range.style.setProperty('--p', ((spend - MIN) / (MAX - MIN) * 100).toFixed(1) + '%');
+    range.style.setProperty('--p', ((spend - MIN) / (MAX - MIN) * 100).toFixed(1) + '%'); range.style.setProperty('--pf', ((spend - MIN) / (MAX - MIN)).toFixed(4));
     roll(q('.cal__year'), year);
     q('.cal__eq').textContent = '1 נק׳ = ₪1';
-    q('.cal__with').textContent = host ? 'ועם ' + nfmt(have()) + ' הנקודות הקיימות שלך:' : 'ביחד עם ' + nfmt(have()) + ' הנקודות הקיימות שלך';
+    q('.cal__with').textContent = host ? 'ועם ' + nfmt(have()) + ' הנקודות הקיימות שלכם:' : 'ביחד עם ' + nfmt(have()) + ' הנקודות הקיימות שלכם';
     q('.cal__all').textContent = nfmt(have() + year) + ' נק׳';
   };
   range.oninput = () => { spend = +range.value; draw(); };
@@ -3516,9 +3579,10 @@ const slides = ARC.map(d => {
       '<h3 class="rd__title">' + d.event.split(' · ')[0] + '</h3>'
     + '<ul class="rd__inc" aria-label="מה כלול">' + ['כרטיס טיסה', 'מלון', entryTicket(d)].map(t => '<li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>' + t + '</li>').join('') + '</ul>'   /* after the scroll too (and on desktop, where there is no cover copy) */
     + '<p class="rd__about">' + ABOUT[i] + '</p>'
+    + songHTML(d)
     + dealHTML(d)));
 
-  const act = el('div','reel__act','<button class="rd__go ds-btn ds-btn--primary ds-btn--block" type="button">מזמינים עכשיו</button>');
+  const act = el('div','reel__act','<button class="rd__go ds-btn ds-btn--primary ds-btn--block" type="button">יוצאים לדרך</button>');
   if (HAVE) act.insertBefore(el('div','rd__have', HAVE), act.firstChild);   /* shown by the points switch */
   const hint = el('div','reel__hint', '<i></i><span>גללו לגלות עוד</span>');
   sl.querySelector('.reel__copy').prepend(hint);   /* sits over the title, rides its entrance */
@@ -3592,6 +3656,53 @@ how.addEventListener('click', e => {
 const reelClose = el('button','reel__close', X);
 reelClose.setAttribute('aria-label','סגירה');
 reel.appendChild(reelClose);
+/* 18.10: share, as the hotel page does today: the phone's share sheet, or the link copied with a toast.
+   The link opens this very experience (#e=…) */
+const SHARE_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7.5 7.5 12 3l4.5 4.5"/><path d="M5 12v6.5A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V12"/></svg>';
+const reelShare = el('button', 'reel__share', SHARE_IC);
+reelShare.type = 'button'; reelShare.setAttribute('aria-label', 'שיתוף');
+reel.appendChild(reelShare);
+const faToast = msg => {
+  const t = el('div', 'fa-toast', msg); t.setAttribute('role', 'status');
+  document.body.appendChild(t); requestAnimationFrame(() => t.classList.add('on'));
+  setTimeout(() => { t.classList.remove('on'); setTimeout(() => t.remove(), 300); }, 2200);
+};
+reelShare.onclick = async () => {
+  const d = ARC[reelIndex], url = location.href.split('#')[0] + '#e=' + Math.max(0, reelIndex);
+  const title = d ? d.event.split(' · ')[0] + ' · FlyAll' : document.title;
+  if (navigator.share) { try { await navigator.share({ title, url }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+  try { await navigator.clipboard.writeText(url); faToast('הקישור הועתק'); } catch (e) { faToast('השיתוף נכשל'); }
+};
+/* 18.10: music for the dream: opening an experience (a tap, so sound is allowed) plays the track of its world;
+   a swipe to another one crossfades; closing fades out. The button mutes, for the rest of the visit */
+const MUSIC = { 'ההופעה': 'assets/music/concert-vastness.mp3', 'המשחק': 'assets/music/match-sports-highlights.mp3', 'הפסטיבל': 'assets/music/festival-techno-fest-vibes.mp3' };
+const bgm = new Audio(); bgm.loop = true; bgm.volume = 0;
+let musicOn = true; try { musicOn = sessionStorage.getItem('flyall-music') !== 'off'; } catch (e) {}
+const reelSnd = el('button', 'reel__snd', '<svg class="off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg><svg class="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>');
+reelSnd.type = 'button';
+const paintSnd = () => { reelSnd.setAttribute('aria-pressed', musicOn); reelSnd.setAttribute('aria-label', musicOn ? 'השתקת המוזיקה' : 'הפעלת מוזיקה'); };
+paintSnd(); reel.appendChild(reelSnd);
+const bgmFade = (to, done) => {
+  clearInterval(bgm._f);
+  bgm._f = setInterval(() => { const d = to - bgm.volume; if (Math.abs(d) < .05) { bgm.volume = to; clearInterval(bgm._f); done && done(); } else bgm.volume = Math.max(0, Math.min(1, bgm.volume + Math.sign(d) * .05)); }, 40);
+};
+function playMusic(i) {
+  const d = ARC[i], src = d && MUSIC[kindOf(d)];
+  if (!src) { stopMusic(); return; }
+  if (!musicOn) return;
+  const start = () => { const p = bgm.play(); if (p && p.catch) p.catch(() => {}); bgmFade(.7); };
+  if (bgm.dataset.src === src) { if (bgm.paused) start(); else bgmFade(.7); return; }
+  const swap = () => { bgm.dataset.src = src; bgm.src = src; start(); };
+  if (bgm.paused || !bgm.dataset.src) swap(); else bgmFade(0, swap);
+}
+function stopMusic() { if (!bgm.paused) bgmFade(0, () => bgm.pause()); }
+document.addEventListener('click', e => { if (e.target.closest('.xsong')) stopMusic(); });   /* off to Spotify: our music steps aside */
+reelSnd.onclick = () => {
+  musicOn = !musicOn; paintSnd();
+  try { sessionStorage.setItem('flyall-music', musicOn ? 'on' : 'off'); } catch (e) {}
+  musicOn ? playMusic(Math.max(0, reelIndex)) : stopMusic();
+};
+
 /* desktop has no swipe: two round arrows beside the story column (hidden below 1024px) */
 const reelPrev = el('button','reel__nav reel__nav--prev', CHV_R);
 const reelNext = el('button','reel__nav reel__nav--next', CHV_L);
@@ -3611,6 +3722,7 @@ let reelIndex = -1;
 function setSlide(i){
   if (i === reelIndex) return;
   reelIndex = i;
+  if (reel.classList.contains('open')) playMusic(i);
   slides.forEach((sl, j) => {
     const v = sl.querySelector('video');
     if (Math.abs(j - i) <= 1 && !v.src) v.src = v.dataset.src;   /* only the neighbours load */
@@ -3639,6 +3751,7 @@ reelTrack.addEventListener('scroll', () => requestAnimationFrame(() => {
 }), { passive:true });
 
 function openReel(i){
+  playMusic(i);                    /* inside the tap: the dream's music may start */
   reel.classList.add('open');
   document.body.classList.add('reel-open');
   stopAll();                       /* nothing plays behind the full frame */
@@ -3651,6 +3764,7 @@ function openReel(i){
   });
 }
 function closeReel(){
+  stopMusic();
   reel.classList.remove('how-open');
   how._quiet();
   reel.classList.remove('open');
@@ -3799,6 +3913,8 @@ setTimeout(start, 120);
   document.body.appendChild(bbar);
   setBnpl(bm);
 })();
+/* 18.10: a shared link (#e=…) opens its experience */
+{ const m = /^#e=(\d+)$/.exec(location.hash); if (m && ARC[+m[1]]) setTimeout(() => openReel(+m[1]), 300); }
 </script>
 </body>
 </html>
