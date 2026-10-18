@@ -2,6 +2,21 @@
 <html lang="he" dir="rtl">
 <head>
 <script>
+/* 18.10: the open link is cached for 10 minutes; every move between the prototype's pages asks for a fresh copy,
+   so an update shows on the next tap, not ten minutes later */
+window.faV = function (u) {
+  try { var x = new URL(u, location.href);
+    if (x.origin === location.origin && /\.html$/.test(x.pathname)) { x.searchParams.set('v', Date.now()); return x.pathname.split('/').pop() + x.search + x.hash; }
+  } catch (e) {}
+  return u;
+};
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href]'); if (!a || a.target === '_blank') return;
+  var h = a.getAttribute('href'); if (!h || h.charAt(0) === '#' || /^(https?:|mailto:|tel:)/.test(h)) return;
+  a.setAttribute('href', window.faV(h));
+}, true);
+</script>
+<script>
 /* 18.10: the shared link is the clean version: no demo switches, one story — signed in, earning points, BNPL on.
    ?demo=1 brings the switches back for the whole visit in this tab (?demo=0 hides them again) */
 (function(){ try {
@@ -3130,7 +3145,7 @@ function wireDeal(sl, d){
   const xd = XD_ALL[d.event.split(' · ')[0]] || [], city = d.event.split(' · ')[1] || '';
   const openDates = () => { deal.classList.add('xd--open'); };
   /* the way on to the booking: followed by hand, so nothing over it on a phone can swallow the tap */
-  go.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); if (go.getAttribute('aria-disabled') !== 'true') location.href = go.href; });
+  go.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); if (go.getAttribute('aria-disabled') !== 'true') location.href = faV(go.href); });
   deal.querySelector('.xd-back').onclick = () => deal.classList.remove('xd--open');
   /* 18.10: step 2, the dates, in a drawer of its own; the dates move into it on open and back on close */
   const xin = deal.querySelector('.xd-in'), scrim = el('div', 'xds-scrim'), sheet = el('div', 'xds',

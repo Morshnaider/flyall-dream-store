@@ -2,6 +2,21 @@
 <html lang="he" dir="rtl">
 <head>
 <script>
+/* 18.10: the open link is cached for 10 minutes; every move between the prototype's pages asks for a fresh copy,
+   so an update shows on the next tap, not ten minutes later */
+window.faV = function (u) {
+  try { var x = new URL(u, location.href);
+    if (x.origin === location.origin && /\.html$/.test(x.pathname)) { x.searchParams.set('v', Date.now()); return x.pathname.split('/').pop() + x.search + x.hash; }
+  } catch (e) {}
+  return u;
+};
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href]'); if (!a || a.target === '_blank') return;
+  var h = a.getAttribute('href'); if (!h || h.charAt(0) === '#' || /^(https?:|mailto:|tel:)/.test(h)) return;
+  a.setAttribute('href', window.faV(h));
+}, true);
+</script>
+<script>
 /* 18.10: the shared link is the clean version: no demo switches, one story — signed in, earning points, BNPL on.
    ?demo=1 brings the switches back for the whole visit in this tab (?demo=0 hides them again) */
 (function(){ try {
