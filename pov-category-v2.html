@@ -676,19 +676,23 @@ html:not([data-points="enough"]) .rd__have{display:none}
 .reel__foot{position:absolute;left:0;right:0;bottom:0;height:42%;pointer-events:none;
  background:linear-gradient(to top,rgba(6,7,16,.94) 0%,rgba(6,7,16,.72) 28%,
    rgba(6,7,16,.34) 58%,rgba(6,7,16,0) 100%)}
-/* the scroll hint (18.10): the familiar bouncing double chevron, alone, no label — "there's more below" */
-.reel__hint{display:flex;justify-content:center;margin-bottom:14px;color:#fff;pointer-events:none}
-.reel__hint svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;
- filter:drop-shadow(0 1px 4px rgba(0,0,0,.35));animation:hintBob 1.6s cubic-bezier(.45,0,.55,1) infinite}
-.reel__hint svg path:last-child{opacity:.5}
-@keyframes hintBob{0%,100%{transform:translateY(0);opacity:.95}50%{transform:translateY(7px);opacity:.6}}
+/* the scroll hint (18.10): the familiar "swipe up" — a finger sliding up under two arrows that light in turn, no label */
+.reel__hint{display:flex;justify-content:center;margin-bottom:12px;color:#fff;pointer-events:none}
+.reel__hint svg{width:30px;height:58px;overflow:visible;fill:none;stroke:currentColor;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;
+ filter:drop-shadow(0 1px 4px rgba(0,0,0,.4))}
+.reel__hint .rh-fill{fill:rgba(255,255,255,.18);stroke:none}
+.reel__hint .rh-hand{animation:rhSwipe 1.9s cubic-bezier(.45,0,.3,1) infinite}
+.reel__hint .rh-c{opacity:.25;animation:rhChev 1.9s ease-in-out infinite}
+.reel__hint .rh-c1{animation-delay:.32s}
+@keyframes rhSwipe{0%{transform:translateY(12px);opacity:0}18%{opacity:1}68%{transform:translateY(-10px);opacity:1}100%{transform:translateY(-14px);opacity:0}}
+@keyframes rhChev{0%,30%{opacity:.25}55%{opacity:1}85%,100%{opacity:.25}}
 .reel__close{position:absolute;top:32px;right:16px;z-index:6;width:44px;height:44px;border-radius:50%;
  display:grid;place-items:center;color:#fff;background:rgba(255,255,255,.14);
  border:1px solid rgba(255,255,255,.22);
  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
  transition:transform .2s var(--ease)}
 .reel__close:active{transform:scale(.92)}
-@media (prefers-reduced-motion: reduce){ .reel__hint svg{animation:none} }
+@media (prefers-reduced-motion: reduce){ .reel__hint .rh-hand,.reel__hint .rh-c{animation:none;opacity:1} }
 
 /* ============ HOW IT WORKS · the three-step walkthrough ============ */
 /* The veil grows: only a strip at the very top stays clear, so the footage
@@ -3212,7 +3216,7 @@ function wireDeal(sl, d){
       + '<span class="xd-pick__p"><b>' + nfmt(p) + ' נק׳</b><small>(₪' + nfmt(p) + ')</small></span>';   /* 18.10: no price again here: the experience said it a moment ago */
     go.removeAttribute('aria-disabled');
     /* 18.10: the booking flow opens on this dream: its name, city, dates, price and picture */
-    const [ttl, place] = d.event.split(' · '), stop = (String((d.dates || [])[+t.dataset.xd] || '').split(' · ')[1] ? String(d.dates[+t.dataset.xd]).split(' · ')[0] : '');
+    const [ttl, place] = d.event.split(' · '), stop = (String((d.dates || [])[+t.dataset.xd] || '').split(' · ')[1] ? String(d.dates[+t.dataset.xd]).split(' · ')[0] : '').replace(/^סופ״ש.*$/, '');   /* 18.10: a festival weekend ("סופ״ש ראשון") is not a city */
     const q = new URLSearchParams({ ev: ttl, city: stop || place || '', kind: kindOf(d), a, b, p: String(p), e: evd || '', el: evLbl(d),
       logo: (d.logos || []).join(','), img: d.poster || ('assets/posters/' + String(d.src || '').split('/').pop().replace('.mp4', '.jpg')) });
     go.href = 'dream-flow-ring.html?' + q + '#1';
@@ -3274,7 +3278,7 @@ const slides = ARC.map(d => {
 
   const act = el('div','reel__act','<button class="rd__go ds-btn ds-btn--primary ds-btn--block" type="button">יוצאים לדרך</button>');
   if (HAVE) act.insertBefore(el('div','rd__have', HAVE), act.firstChild);   /* shown by the points switch */
-  const hint = el('div','reel__hint', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7l6 6 6-6"/><path d="M6 13l6 6 6-6"/></svg>');
+  const hint = el('div','reel__hint', '<svg viewBox="0 0 60 116" aria-hidden="true">' + '<path class="rh-c rh-c1" d="M20 22l10-10 10 10"/><path class="rh-c rh-c2" d="M20 34l10-10 10 10"/>' + '<g class="rh-hand"><g transform="translate(2 34)">' + '<path class="rh-fill" d="M14 12 a7 7 0 0 1 14 0 V34 a7 7 0 0 1 14 0 V40 a6 6 0 0 1 12 0 V64 a14 14 0 0 1 -14 14 H30 a16 16 0 0 1 -16 -16 Z"/>' + '<path d="M14 58 V12 a7 7 0 0 1 14 0 v30"/><path d="M28 34 a7 7 0 0 1 14 0 v13"/><path d="M42 40 a6 6 0 0 1 12 0 v10"/>' + '<path d="M14 46 v16 a16 16 0 0 0 16 16 h10 a14 14 0 0 0 14 -14 V48"/><path d="M14 54 a8 8 0 0 0 -10 8"/></g></g></svg>');
   sl.querySelector('.reel__copy').prepend(hint);   /* sits over the title, rides its entrance */
   sl.appendChild(act);
 
