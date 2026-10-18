@@ -1081,6 +1081,24 @@ body.is-guest .sum__dep{display:none}
 .stars{color:var(--ds-pink);letter-spacing:1px;font-size:13px}
 .score{display:inline-grid;place-items:center;min-width:30px;height:20px;padding:0 5px;border-radius:6px;background:var(--ds-gradient);color:#fff;font:700 11px/1 var(--ds-font-btn);margin-inline:6px}
 .perk{display:block;margin-top:4px;font:400 13px/1.3 var(--ds-font);color:var(--ok)}
+/* 18.10: the festival — its package card, hotel cards and upgrades */
+.fdp__h{margin:16px 0 8px;font:700 15px/1.3 var(--ds-font);color:var(--ds-black)}
+.fdp__in,.fdp__out{list-style:none;margin:0;padding:0;display:grid;gap:7px;font:400 14px/1.4 var(--ds-font);color:var(--ink)}
+.fdp__in li{display:flex;gap:8px;align-items:flex-start}
+.fdp__in svg{flex:none;width:16px;height:16px;margin-top:2px;fill:none;stroke:var(--ok);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.fdp__out li{position:relative;padding-inline-start:24px;color:var(--ds-gray)}
+.fdp__out li::before{content:"–";position:absolute;inset-inline-start:6px}
+.fdp .warn{margin-top:12px}
+.fdh__board{margin-top:2px!important;font-weight:600!important;color:var(--ds-purple)!important}
+.fdh__d{margin-top:4px!important;font-size:13px!important}
+.fdh__d b{font-weight:700;color:var(--ds-black)}
+.fdh__fac{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px!important}
+.fdh__fac span{font:400 12px/1.3 var(--ds-font);color:var(--ok)}
+.fd__pp{margin-inline-start:4px;font:400 12px/1 var(--ds-font);color:var(--ds-gray)}
+.fdx dl{margin:12px 0 0;display:grid;gap:10px}
+.fdx dl div{padding:12px 14px;border-radius:14px;background:var(--ds-light-blue-1,#F0F8FF)}
+.fdx dt{font:700 14px/1.3 var(--ds-font);color:var(--ds-black)}
+.fdx dd{margin:4px 0 0;font:400 13px/1.45 var(--ds-font);color:var(--ink)}
 .perk::before{content:"✓ "}
 @media (min-width:600px){ .lodge__img{width:220px} }
 .room{display:flex;padding:0;overflow:hidden;position:relative;align-items:stretch}
@@ -1681,6 +1699,7 @@ const EV_DAY = (e => { if (!e || e.includes('–')) return e ? e + '.2027' : '';
 const DUE = (dt => dt.getDate() + '.' + (dt.getMonth() + 1) + '.' + dt.getFullYear())(new Date(EV.at.getTime() - 60 * 864e5));   /* the balance, 60 days before */
 const MONTHS = Math.max(1, Math.round((EV.at - new Date()) / (30.4 * 864e5)));   /* card months until the dream */
 const BASE = EV.price;     /* per passenger, basic package */
+const NIGHTS_OF = (a, b) => { const d = x => { const [p, q] = x.split('.').map(Number); return new Date(2027, q - 1, p); }; return Math.round((d(b) - d(a)) / 864e5); };
 const STAGE = EV.kind === 'המשחק' ? 'המגרש' : 'הבמה';
 const fmt = n => Math.round(n).toLocaleString('en-US');
 const el = (tag, cls, html) => { const n = document.createElement(tag); if (cls) n.className = cls; if (html != null) n.innerHTML = html; return n; };
@@ -1693,12 +1712,60 @@ const PACKS = [
   { id: 'plus', name: 'פלוס',  zone: 'יציע ראשי', desc: 'קומה ראשונה מול ' + STAGE + ', שדה ראייה מלא',    up: 1200, color: '#C46FC0', z: 'main' },
   { id: 'vip',  name: 'VIP',   zone: 'פרקט',      desc: EV.kind === 'המשחק' ? 'שורות ראשונות, צמוד למגרש' : 'רחבת עמידה קדמית, 20 מטר מהבמה',         up: 2500, color: '#F2C230', z: 'floor' }
 ];
-/* 18.10: a festival has no seats and no stands: its packages are kinds of pass, with no seating map (demo names) */
+/* 18.10: a festival has no seats and no stands. Its package, as Issta Sport sells it, is one package (ticket, flights,
+   transfers), with the hotel and the room as the choices, priced per person by occupancy. Tomorrowland Winter is taken
+   from Issta Sport's "TOMORROWLAND WINTER 2027 All hotels" sheet; Tomorrowland in Belgium copies its shape with DEMO data.
+   Prices are in €, shown in points at EUR (a demo rate) */
 const FEST = EV.kind === 'הפסטיבל';
-if (FEST) PACKS.splice(0, PACKS.length,
-  { id: 'base', name: 'רגיל',     zone: 'כל ימי הפסטיבל', desc: 'כניסה לכל הבמות, בכל ימי הפסטיבל',              up: 0,    color: '#7BC86C' },
-  { id: 'plus', name: 'קומפורט',  zone: 'מתחמי נוחות',     desc: 'גם מתחמי מנוחה, שירותים ובר נפרדים',            up: 1200, color: '#C46FC0' },
-  { id: 'vip',  name: 'VIP',      zone: 'צפייה מוגבהת',    desc: 'גם עמדות צפייה מוגבהות ליד הבמה הראשית',       up: 2500, color: '#F2C230' });
+const EUR = 4;
+const FEST_DATA = {
+  'Tomorrowland Winter': {
+    incl: ['כרטיס לפסטיבל', 'סקי־פס', 'טיסות הלוך־חזור', 'העברות', 'נציג איסתא ספורט במקום לאורך כל השבוע'],
+    excl: ['ביטוח נסיעות לחו״ל', 'מס מקומי / מס תייר במלון'],
+    note: 'צמידי הפסטיבל נמסרים באתר ביום ההגעה.',
+    air: 'LYS', airline: 'Overseas', flNote: 'טיסת שכר של Overseas, נחיתה בליון. שעות הטיסה אינן סופיות.',
+    fl: [['טיסת שכר', 'TLV', '20/03/27 · 10:00', 'LYS', '20/03/27 · 13:30', '4h 30m'], ['טיסת שכר', 'LYS', '27/03/27 · 15:00', 'TLV', '27/03/27 · 20:30', '4h 30m']],
+    dist: ['מעלית הסקי', 'הבמה הראשית'],
+    extras: { h: 'שדרוגים ותוספות', p: 'ציוד והדרכות מזמינים מול נציג איסתא ספורט, עד חודש לפני היציאה.',
+      rows: [['ציוד סקי / סנובורד (SKISET)', 'ECO 90 € · Evolution 115 € · Performance 150 €'], ['הדרכה קבוצתית', 'עד 8 בקבוצה, 3 ימים (א׳–ג׳) 10:00–13:00 · 250 € לאדם, 50 € הנחה לאדם מ־3 ומעלה'], ['הדרכה פרטית', 'יום אחד, 3 שעות · 300 €']] },
+    hotels: [
+      { id: 'h1', name: 'Résidence L’Ours Blanc', board: 'לינה בלבד', d: ['50 מ׳', '400 מ׳'], fac: ['Wifi', 'מצעים ומגבות', 'אחסון ציוד סקי'], img: 'assets/flow/room-1.jpg',
+        rooms: [{ id: 'd', name: 'דירת 2 חדרים · Type D', size: '25 מ״ר · מרפסת · מטבחון', occ: [3, 4], eur: 3149 }] },
+      { id: 'h2', name: 'MMV Les Bergers', board: 'חצי פנסיון', d: ['90 מ׳', '1 ק״מ'], fac: ['Wifi', 'ספא', 'מסעדה', 'בר'], img: 'assets/flow/room-2.jpg',
+        rooms: [{ id: 'dbl', name: 'חדר זוגי · Type A', size: '15–18 מ״ר', occ: [2, 2], eur: 3249 }, { id: 'tpl', name: 'חדר לשלישייה · Type A', size: '15–18 מ״ר · 3 מיטות יחיד', occ: [3, 3], eur: 3499 }] },
+      { id: 'h3', name: 'Odalys Prestige L’Eclose', board: 'לינה בלבד', d: ['100 מ׳', '400 מ׳'], fac: ['Wifi', 'ספא', 'בריכה מחוממת'], img: 'assets/flow/room-3.jpg',
+        rooms: [{ id: 'a2', name: 'דירת 2 חדרים · Type A · לזוג', size: '31 מ״ר · מרפסת · מטבחון', occ: [2, 2], eur: 4319 }, { id: 'a6', name: 'דירת 2 חדרים · Type A · לשישה', size: '31 מ״ר · מרפסת · מטבחון', occ: [6, 6], eur: 3599 }] },
+      { id: 'h4', name: 'Le Pic Blanc', board: 'לינה וארוחת בוקר', d: ['100 מ׳', '450 מ׳'], fac: ['Wifi', 'ספא', 'בריכה', 'מסעדה', 'בר'], img: 'assets/flow/room-1.jpg',
+        rooms: [{ id: 'dbl', name: 'חדר זוגי · Type A', size: '21 מ״ר', occ: [2, 2], eur: 4249 }] }
+    ]
+  },
+  'Tomorrowland': {   /* DEMO: the shape of Tomorrowland Winter, until Issta Sport's sheet for Belgium */
+    incl: ['כרטיס לפסטיבל לכל ימי הסופ״ש', 'טיסות הלוך־חזור', 'העברות יומיות לפסטיבל', 'נציג איסתא ספורט במקום'],
+    excl: ['ביטוח נסיעות לחו״ל', 'מס מקומי / מס תייר במלון'],
+    note: 'צמידי הפסטיבל נמסרים באתר ביום ההגעה.',
+    dist: ['שאטל לפסטיבל', 'נסיעה לפסטיבל'],
+    hotels: [
+      { id: 'h1', name: 'מלון 4★ באנטוורפן', board: 'לינה וארוחת בוקר', d: ['כל יום', 'כ־25 דק׳'], fac: ['Wifi', 'מסעדה', 'בר'], img: 'assets/flow/room-1.jpg',
+        rooms: [{ id: 'dbl', name: 'חדר זוגי', size: '20 מ״ר', occ: [2, 2], eur: 1525 }, { id: 'tpl', name: 'חדר לשלישייה', size: '26 מ״ר', occ: [3, 3], eur: 1560 }] },
+      { id: 'h2', name: 'מלון 4★ בבריסל', board: 'לינה וארוחת בוקר', d: ['כל יום', 'כ־40 דק׳'], fac: ['Wifi', 'חדר כושר', 'בר'], img: 'assets/flow/room-2.jpg',
+        rooms: [{ id: 'dbl', name: 'חדר זוגי', size: '22 מ״ר', occ: [2, 2], eur: 1640 }, { id: 'fam', name: 'חדר משפחתי', size: '32 מ״ר', occ: [3, 4], eur: 1590 }] },
+      { id: 'h3', name: 'מלון בוטיק 5★ באנטוורפן', board: 'לינה וארוחת בוקר', d: ['כל יום', 'כ־25 דק׳'], fac: ['Wifi', 'ספא', 'מסעדה', 'בר'], img: 'assets/flow/room-3.jpg',
+        rooms: [{ id: 'dbl', name: 'חדר זוגי', size: '24 מ״ר', occ: [2, 2], eur: 2150 }] }
+    ]
+  }
+};
+const FD = FEST ? FEST_DATA[EV.name] : null;
+if (FD) {
+  PACKS.splice(0, PACKS.length, { id: 'base', name: 'חבילת הפסטיבל', zone: NIGHTS_OF(EV.a, EV.b) + ' לילות', desc: '', up: 0, color: '#824AEA' });
+  if (FD.air) EV.air = FD.air;
+}
+/* a window's price moves every room's price with it (the sheet is the cheapest window) */
+const FD_FROM = FD ? Math.min(...FD.hotels.flatMap(h => h.rooms.map(r => r.eur))) * EUR : 1;
+const ppOf = r => Math.round(r.eur * EUR * (EV.price / FD_FROM) / 10) * 10;
+const fdRooms = h => h ? h.rooms.filter(r => S.pax >= r.occ[0] && S.pax <= r.occ[1]) : [];
+const fdMin = h => Math.min(...fdRooms(h).map(ppOf));
+const syncHotels = () => { if (FD) HOTELS.splice(0, HOTELS.length, ...FD.hotels.filter(h => fdRooms(h).length).sort((x, y) => fdMin(x) - fdMin(y))); };   /* cheapest first */
+const fdBase = () => HOTELS.length ? Math.min(...HOTELS.map(fdMin)) : BASE;
 const HOTELS = !EV.paris ? [
   { id: 'h1', name: 'מלון 4★ ליד ' + (EV.kind === 'המשחק' ? 'האצטדיון' : 'האירוע'), stars: 4, score: '8.6', reviews: 1240, where: EV.city + ' · 5 דק׳ הליכה', up: 0, img: 'assets/flow/room-1.jpg', perks: ['ארוחת בוקר כלולה'] },
   { id: 'h2', name: 'מלון 4★ במרכז ' + EV.city, stars: 4, score: '8.4', reviews: 980, where: EV.city + ' · 10 דק׳ בתחבורה', up: 350, img: 'assets/flow/room-2.jpg', perks: ['ארוחת בוקר כלולה', 'בריכה מקורה'] },
@@ -1718,19 +1785,21 @@ const ROOMS = () => {
     { id: 'std', name: base, size: ROOM_SIZE[k], up: 0, img: 'assets/flow/room-' + Math.min(3, n) + '.jpg' },
     { id: 'sup', name: base + ' סופריור', size: ROOM_SIZE[k].replace(/^\d+/, x => +x + 8) + ' · קומה גבוהה', up: 400, img: 'assets/flow/room-3.jpg' }
   ];
-  return EV.kind === 'הפסטיבל' ? v.slice(0, 1) : v;
+  if (FD) { const h = find(HOTELS, S.hotel), lo = fdMin(h);   /* the festival: the hotel's rooms for this party, per person */
+    return fdRooms(h).map(r => ({ id: r.id, name: r.name, size: r.size, pp: ppOf(r), up: ppOf(r) - lo, img: h.img })); }
+  return v;
 };
 const roomSel = () => ROOMS().find(r => r.id === S.room);
-const FLIGHTS = [
+if (FD) HOTELS.length = 0;   /* filled per party by syncHotels() */
+const FLIGHTS = FD && FD.fl ? [{ id: 'f1', up: 0, airline: FD.airline, note: FD.flNote, legs: FD.fl }] : [
   { id: 'f1', up: 0,   legs: [['LY 323', 'TLV', EV.a.replace('.', '/') + '/27 · 08:45', EV.air, EV.a.replace('.', '/') + '/27 · 12:50', '5h 05m'], ['LY 324', EV.air, EV.b.replace('.', '/') + '/27 · 16:00', 'TLV', EV.b.replace('.', '/') + '/27 · 21:15', '4h 15m']] },
   { id: 'f2', up: 180, legs: [['LY 325', 'TLV', EV.a.replace('.', '/') + '/27 · 16:10', EV.air, EV.a.replace('.', '/') + '/27 · 20:15', '5h 05m'], ['LY 328', EV.air, EV.b.replace('.', '/') + '/27 · 11:30', 'TLV', EV.b.replace('.', '/') + '/27 · 16:45', '4h 15m']] }
 ];
-if (EV.kind === 'הפסטיבל') HOTELS.splice(1);   /* demo, as for the room: one lodging option */
 const STEPS = ['חבילה', 'מלון', 'חדר', 'טיסה', 'סיכום ותשלום'];
 /* 18.10, per ALP: a step shows only when there's a choice to make. Each hotel is its own package option, so one option
    means no hotel step; one room variant, no room step. The flight comes with the package: shown in the summary, never a step */
 const SKIP = i => (i === 1 && HOTELS.length < 2) || (i === 2 && ROOMS().length < 2) || i === 3;
-const autoPick = () => { if (HOTELS.length < 2) S.hotel = HOTELS[0].id; if (ROOMS().length < 2) S.room = ROOMS()[0].id; S.flight = 'f1'; };
+const autoPick = () => { if (HOTELS.length === 1) S.hotel = HOTELS[0].id; if (ROOMS().length === 1) S.room = ROOMS()[0].id; S.flight = 'f1'; };
 const nextLbl = () => { if (S.step >= 3) return NEXT[S.step]; let j = S.step + 1; while (j < 4 && SKIP(j)) j++;
   return j === 1 ? 'המשך למלון' : j === 2 ? 'המשך לחדר' : 'מעבר להזמנה'; };
 /* as in Figma: after the flight, step 5 asks who the booking is for, then "מעבר להזמנה" opens the checkout
@@ -1750,8 +1819,8 @@ const S = { step: 0, pax: 1, pack: null, hotel: null, room: null, flight: 'f1', 
   forWho: 'me', news: true, detailsDone: false, f: { fn: 'ענת', ln: 'ישראלי', mail: 'anatisraeli@gmail.com', tel: '052-0000000', efn: 'Anat', eln: 'Israeli' } };
 const find = (arr, id) => arr.find(x => x.id === id);
 const up = (arr, id) => (find(arr, id) || { up: 0 }).up;
-const total = () => S.pax * (BASE + up(PACKS, S.pack) + up(FLIGHTS, S.flight))
-  + up(HOTELS, S.hotel) + ((roomSel() || {}).up || 0);
+const total = () => FD ? S.pax * ((roomSel() || {}).pp || (find(HOTELS, S.hotel) ? fdMin(find(HOTELS, S.hotel)) : fdBase()))
+  : S.pax * (BASE + up(PACKS, S.pack) + up(FLIGHTS, S.flight)) + up(HOTELS, S.hotel) + ((roomSel() || {}).up || 0);
 const BACK_TO = ['', 'חזרה לבחירת חבילה', 'חזרה לבחירת מלון', 'חזרה לבחירת חדר', 'חזרה לבחירת טיסה'];
 
 /* ================= the ring — one node for the whole flow, so its numbers roll from the last value ================= */
@@ -2003,7 +2072,7 @@ function sideHTML() {
     + '<div class="sum__dep"><div class="sd__now"><span class="sd__lbl">היום משלמים רק<em>מקדמה של 20%</em></span><span class="sd__amt"><b>' + fmt(dep) + '<small>נק׳</small></b><i>(₪' + fmt(dep) + ')</i></span></div>'   /* points first, ₪ small beside, as in the total */
     +   '<div class="sd__later"><span>את היתרה משלמים עד ' + DUE + '</span><span class="sd__rest"><b>' + fmt(t - dep) + ' נק׳</b><i>(₪' + fmt(t - dep) + ')</i></span></div>'
     +   '<p class="sd__fine">' + IC.info + '<span><b>סכום היתרה (80%)</b> ייקבע לפי שער ההמרה ביום החיוב, ולכן הוא עשוי להשתנות. נעדכן אתכם ב־SMS לפני החיוב.</span></p></div></article>'
-    + (S.step ? '' : '<details class="card acc"><summary>מה כלול בחבילה</summary><ul><li>כרטיס ל' + EV.kind.slice(1) + ' לפי החבילה</li><li>' + NIGHTS + ' לילות במלון</li><li>טיסות הלוך־חזור ישירות</li><li>כבודה 23 ק״ג + טרולי</li></ul></details>'
+    + (S.step || FD ? '' : '<details class="card acc"><summary>מה כלול בחבילה</summary><ul><li>כרטיס ל' + EV.kind.slice(1) + ' לפי החבילה</li><li>' + NIGHTS + ' לילות במלון</li><li>טיסות הלוך־חזור ישירות</li><li>כבודה 23 ק״ג + טרולי</li></ul></details>'
     + '<details class="card acc"><summary>תנאי שינוי וביטול</summary><p>כשמזמינים משלמים מקדמה של 20% ממחיר החבילה, ואת היתרה משלימים עד 60 יום לפני היציאה.</p><p class="acc__h"><b>כמה עולה לבטל?</b></p><ul class="acc__terms"><li><b>מיד אחרי ההזמנה:</b> אפשר לבטל לפי חוק הגנת הצרכן, בתנאים שהחוק קובע.</li><li><b>מסוף התקופה שבחוק ועד 60 יום לפני היציאה:</b> דמי הביטול הם המקדמה בלבד (20% ממחיר החבילה).</li><li><b>ב־60 הימים שלפני היציאה:</b> דמי הביטול הם מחיר החבילה המלא (100%).</li></ul></details>');
 }
 
@@ -2086,21 +2155,34 @@ function payHTML() {
       + '<label class="terms"><input type="checkbox" data-terms' + (S.terms ? ' checked' : '') + '><span>קראתי ואני מאשר/ת את <a href="#">תנאי השימוש</a> ואת <a href="#">מדיניות הביטול</a></span></label></div>';
   }
 
+/* 18.10: the festival's package: nothing to pick, what it includes; and a word when no room fits the party */
+const fdPackHTML = () => '<div class="card fdp"><h2>החבילה שלכם</h2><p class="sub">' + NIGHTS + ' לילות, ' + DATES + '</p>'
+  + (HOTELS.length ? '' : '<p class="warn">אין בחבילה הזו חדר ל־' + S.pax + (S.pax > 1 ? ' נוסעים' : ' נוסע') + '. החדרים בחבילה מתאימים ל־' + [...new Set(FD.hotels.flatMap(h => h.rooms.flatMap(r => Array.from({ length: r.occ[1] - r.occ[0] + 1 }, (_, i) => r.occ[0] + i))))].sort((a, b) => a - b).join(', ') + ' נוסעים.</p>')
+  + '<h3 class="fdp__h">החבילה כוללת</h3><ul class="fdp__in">' + FD.incl.map(x => '<li>' + IC.check + x + '</li>').join('') + '</ul>'
+  + '<h3 class="fdp__h">החבילה אינה כוללת</h3><ul class="fdp__out">' + FD.excl.map(x => '<li>' + x + '</li>').join('') + '</ul>'
+  + (FD.note ? '<p class="pay__fine">' + IC.info + FD.note + '</p>' : '') + '</div>';
+const fdHotelHTML = h => '<div class="lodge__img" style="background-image:url(' + h.img + ')">' + (fdMin(h) === fdBase() ? '<span class="pill">כלול בחבילה</span>' : '') + '</div>'
+  + '<div class="opt__b"><h4>' + h.name + '</h4><p class="fdh__board">' + h.board + '</p>'
+  + '<p class="fdh__d">' + FD.dist.map((t, i) => t + ' <b>' + h.d[i] + '</b>').join(' · ') + '</p>'
+  + '<p class="fdh__fac">' + h.fac.map(x => '<span>' + x + '</span>').join('') + '</p>'
+  + '<div class="opt__f">' + (fdMin(h) === fdBase() ? '<span class="pts pts--inc">כלול</span>' : pts(fdMin(h) - fdBase(), true) + '<small class="fd__pp">לאדם</small>') + '</div></div><span class="radio"></span>';
+const fdExtrasHTML = () => !FD || !FD.extras ? '' : '<div class="card fdx"><h2>' + FD.extras.h + '</h2><p class="sub">' + FD.extras.p + '</p>'
+  + '<dl>' + FD.extras.rows.map(([a, b]) => '<div><dt>' + a + '</dt><dd>' + b + '</dd></div>').join('') + '</dl></div>';
 const STEP_UI = [
   /* 1 · package */
   () => '<div class="card pax"><div><h2>כמה נוסעים?</h2><p class="sub">המחיר לכל נוסע</p></div>'
       + '<div class="stepper"><button type="button" data-pax="1" aria-label="נוסע נוסף">+</button><output>' + S.pax + '</output><button type="button" data-pax="-1" aria-label="פחות נוסעים"' + (S.pax <= 1 ? ' disabled' : '') + '>−</button></div></div>'
-      + '<div class="card"><h2>בחירת חבילה</h2><p class="sub">' + (FEST ? 'החבילה קובעת את סוג הכרטיס לפסטיבל' : 'החבילה קובעת את המקום ב' + EV.kind.slice(1) + '. מתחייבים על ישיבה בזוגות') + ', והכרטיס יישלח אליכם 7 ימים לפני המועד.</p>'
+      + (FD ? fdPackHTML() : '<div class="card"><h2>בחירת חבילה</h2><p class="sub">' + (FEST ? 'החבילה קובעת את סוג הכרטיס לפסטיבל' : 'החבילה קובעת את המקום ב' + EV.kind.slice(1) + '. מתחייבים על ישיבה בזוגות') + ', והכרטיס יישלח אליכם 7 ימים לפני המועד.</p>'
       + (FEST ? '' : arena((find(PACKS, S.pack) || {}).z))
       + PACKS.map(p => radio(S.pack === p.id, p.id,
           '<span class="radio"></span><div class="opt__b"><h4><i class="dot" style="background:' + p.color + '"></i>' + p.name + ' · ' + p.zone + '</h4><p>' + p.desc + '</p>'
         /* 18.10: two labelled rows, each in points and ₪: what this package adds, and what it comes to, per traveller */
         + '<dl class="opt__f pkf"><div class="' + (p.up ? '' : 'pkf__inc') + '">' + (p.up ? '<dt>תוספת לנוסע</dt>' : '') + '<dd>' + (p.up ? pts(p.up, true) : '<span class="pill">כלול בחבילה</span>') + '</dd></div>'   /* included: the chip alone, no label */
         + '<div class="pkf__tot"><dt>סה״כ לנוסע</dt><dd>' + pts(BASE + p.up) + '</dd></div></dl></div>')).join('')
-      + '</div>',
+      + '</div>'),
   /* 2 · hotel */
   () => '<div class="card"><h2>בחירת מלון</h2><p class="sub">' + NIGHTS + ' לילות, ' + DATES + '</p><div style="margin-top:14px">'
-      + HOTELS.map(h => radio(S.hotel === h.id, h.id,
+      + HOTELS.map(h => radio(S.hotel === h.id, h.id, FD ? fdHotelHTML(h) :
           '<div class="lodge__img" style="background-image:url(' + h.img + ')">' + (h.up ? '' : '<span class="pill">כלול בחבילה</span>') + '</div>'
         + '<div class="opt__b"><h4>' + h.name + '</h4><p><span class="stars">' + '★'.repeat(h.stars) + '</span><span class="score">' + h.score + '</span>(' + fmt(h.reviews) + ')</p><p>' + h.where + '</p>'
         + h.perks.map(x => '<span class="perk">' + x + '</span>').join('')
@@ -2113,19 +2195,19 @@ const STEP_UI = [
       + ROOMS().map(r => radio(S.room === r.id, r.id,
           '<div class="lodge__img" style="background-image:url(' + r.img + ')">' + (r.up ? '' : '<span class="pill">כלול בחבילה</span>') + '</div>'
         + '<div class="opt__b"><h4>' + r.name + '</h4><p>' + r.size + '</p><p>' + (S.pax === 1 ? 'לאורח אחד' : 'ל־' + S.pax + ' אורחים') + '</p>'
-        + '<div class="opt__f">' + (r.up ? pts(r.up, true) : '<span class="pts pts--inc">כלול</span>') + '</div></div><span class="radio"></span>', 'lodge')).join('')
+        + '<div class="opt__f">' + (r.up ? pts(r.up, true) + (FD ? '<small class="fd__pp">לאדם</small>' : '') : '<span class="pts pts--inc">כלול</span>') + '</div></div><span class="radio"></span>', 'lodge')).join('')
       + '</div></div>';
   },
   /* 4 · flight preview */
   /* one flight comes with the package: shown as information, nothing to choose */
   () => '<div class="card"><h2>הטיסות שלכם</h2><p class="sub">טיסות ישירות הלוך־חזור, כלולות בחבילה</p><div style="margin-top:14px">'
       + FLIGHTS.slice(0, 1).map(f => ('<div class="opt flight flight--info"><div class="opt__b"><span class="pill">כלול בחבילה</span>'
-        + f.legs.map(l => '<div class="air" style="margin-top:14px"><i>EL AL</i><span>' + l[0] + '</span></div>'
+        + f.legs.map(l => '<div class="air" style="margin-top:14px"><i>' + (f.airline || 'EL AL') + '</i><span>' + l[0] + '</span></div>'
           + '<div class="leg"><div class="leg__pt"><b>' + l[1] + '</b><small>' + l[2] + '</small></div><div class="leg__mid">ישירה<i></i>' + l[5] + '</div><div class="leg__pt"><b>' + l[3] + '</b><small>' + l[4] + '</small></div></div>').join('')
-        + '<details class="bag"><summary>פירוט כבודה<span>›</span></summary><p>תיק יד 8 ק״ג, טרולי 8 ק״ג ומזוודה 23 ק״ג לכל נוסע.</p></details></div></div>')).join('')
+        + (f.note ? '<p class="pay__fine" style="margin-top:12px">' + IC.info + f.note + '</p>' : '<details class="bag"><summary>פירוט כבודה<span>›</span></summary><p>תיק יד 8 ק״ג, טרולי 8 ק״ג ומזוודה 23 ק״ג לכל נוסע.</p></details>') + '</div></div>')).join('')
       + '</div></div>',
   /* 5 · summary and payment — one step: who it's for, then the payment under it */
-  () => (S.detailsDone ? '<p class="backrow"><a class="back" href="#" data-edit>' + IC.back + 'חזרה לסיכום</a></p>' : STEP_UI[3]()) + whoHTML() + (S.detailsDone ? '<div class="paywrap">' + payHTML() + '</div>' : ''),
+  () => (S.detailsDone ? '<p class="backrow"><a class="back" href="#" data-edit>' + IC.back + 'חזרה לסיכום</a></p>' : STEP_UI[3]() + fdExtrasHTML()) + whoHTML() + (S.detailsDone ? '<div class="paywrap">' + payHTML() + '</div>' : ''),
   /* 6 · confirmed */
   () => {
     const t = total(), dep = Math.round(t * 0.2);
@@ -2146,7 +2228,7 @@ const STEP_UI = [
   }
 ];
 const canGo = () => [
-  () => !!S.pack, () => !!S.hotel, () => !!S.room, () => !!S.flight, () => S.detailsDone && S.terms, () => true
+  () => !!S.pack && (!FD || HOTELS.length > 0), () => !!S.hotel, () => !!S.room, () => !!S.flight, () => S.detailsDone && S.terms, () => true
 ][S.step]();
 
 /* ================= the confirmation's little celebration ================= */
@@ -2283,7 +2365,7 @@ app.addEventListener('click', e => {
   }
   /* past 6 the booking isn't online any more — a drawer hands the group to a person */
   if (t.closest('[data-pax="1"]') && S.pax >= 6) return GROUP.open();
-  if (t.closest('[data-pax]')) { S.pax = Math.max(1, Math.min(6, S.pax + +t.closest('[data-pax]').dataset.pax)); S.room = null; return render(); }
+  if (t.closest('[data-pax]')) { S.pax = Math.max(1, Math.min(6, S.pax + +t.closest('[data-pax]').dataset.pax)); S.room = null; if (FD) { syncHotels(); if (!find(HOTELS, S.hotel)) S.hotel = null; } return render(); }
   if (t.closest('[data-pts]')) { S.usePts = !S.usePts; return render(); }
   /* the details fold, and the payment opens under them — same step, no new page */
   if (t.closest('[data-details]')) {
@@ -2324,10 +2406,11 @@ app.addEventListener('pointerdown', e => {
 app.addEventListener('keydown', e => {
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-pick]')) { e.preventDefault(); e.target.click(); }
 });
+if (FD) { S.pax = 2; S.pack = 'base'; syncHotels(); }   /* the festival's rooms start at two */
 S.step = Math.max(0, Math.min(LAST, (parseInt(location.hash.slice(1), 10) || 1) - 1));
 if (S.step > 0) S.pack = 'base';
-if (S.step > 1) S.hotel = 'h1';
-if (S.step > 2) S.room = 'std';
+if (S.step > 1) S.hotel = (HOTELS[0] || {}).id;
+if (S.step > 2) S.room = (ROOMS()[0] || {}).id;
 if (S.step > 0) autoPick();
 while (S.step > 0 && S.step < LAST && SKIP(S.step)) S.step++;
 render();
