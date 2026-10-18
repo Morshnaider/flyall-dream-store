@@ -3098,7 +3098,12 @@ const SONGS = {   /* 18.10: the real songs, as Apple's official 30-second previe
   'Tomorrowland': { pv: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/14/28/f0/1428f0b7-a25a-da15-e795-0fb113ad0d7e/mzaf_11522810489274985846.plus.aac.p.m4a', t: 'Sun Is Shining · Axwell Λ Ingrosso', am: 'https://music.apple.com/us/album/sun-is-shining/6798409143?i=6798409416' },
   'גמר ליגת האלופות': { pv: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/59/e5/55/59e555d1-c860-1a6b-d812-1f05e1238e14/mzaf_7183968418986813080.plus.aac.p.m4a', t: 'UEFA Champions League Anthem', am: 'https://music.apple.com/us/album/uefa-champions-league-anthem-full-version/1616653962?i=1616653967' }
 };
-SONGS['Tomorrowland Winter'] = SONGS['Tomorrowland'];
+/* 18.10: every dream gets its song */
+SONGS['Tomorrowland Winter'] = { pv: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/68/1e/60/681e601f-e1f2-4ebb-37de-adf00bdf57b6/mzaf_8266263075137964740.plus.aac.p.m4a', t: 'Wake Me Up · Avicii', am: 'https://music.apple.com/us/album/wake-me-up/1440872730?i=1440872929' };
+SONGS['אל קלאסיקו'] = { pv: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a5/14/b7/a514b7cf-da1c-b9f0-7e49-e09dc4212d56/mzaf_15809335266218305370.plus.aac.p.m4a', t: 'Hala Madrid ...y nada más · Real Madrid', am: 'https://music.apple.com/us/album/hala-madrid-y-nada-m%C3%A1s-feat-redone/1744016330?i=1744016331' };
+SONGS['צ׳לסי – מנצ׳סטר סיטי'] = { pv: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/6c/3f/ce/6c3fce99-8572-43c2-10a0-1fac7fb52d10/mzaf_2465097792742164568.plus.aac.p.m4a', t: 'Blue Is The Colour · Chelsea FC', am: 'https://music.apple.com/us/album/blue-is-the-colour/435660061?i=435660074' };
+SONGS['פורמולה 1'] = { pv: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/15/9f/31/159f3139-16ab-6ccf-813f-86d4adffcf61/mzaf_17361308171774933378.plus.aac.p.m4a', t: 'The Chain · Fleetwood Mac', am: 'https://music.apple.com/us/album/the-chain/651879763?i=651880159' };
+SONGS['רולאן גארוס'] = { pv: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/00/e4/32/00e4326a-a3d6-4c85-b7be-8a123f04f6cb/mzaf_10395904914225014080.plus.aac.p.m4a', t: 'Les Champs-Élysées · Joe Dassin', am: 'https://music.apple.com/us/album/les-champs-%C3%A9lys%C3%A9es/311331439?i=311331447' };
 const songOf = d => SONGS[d.event.split(' · ')[0]];
 /* 18.10: no player: just a small Spotify button that opens the experience's song in Spotify */
 const songHTML = () => '';   /* 18.10: no player or button: the song plays as the experience's music */
@@ -3326,18 +3331,18 @@ const reelSnd = el('button', 'reel__snd', '<svg class="off" viewBox="0 0 24 24" 
 reelSnd.type = 'button';
 const paintSnd = () => { reelSnd.setAttribute('aria-pressed', musicOn); reelSnd.setAttribute('aria-label', musicOn ? 'השתקת המוזיקה' : 'הפעלת מוזיקה'); };
 paintSnd(); reel.appendChild(reelSnd);
-const bgmFade = (to, done) => {
+const bgmFade = (to, done, step = .05) => {   /* 18.10: step .012 is a slow ~2.5-second rise, so a dream never starts with a jolt */
   clearInterval(bgm._f);
-  bgm._f = setInterval(() => { const d = to - bgm.volume; if (Math.abs(d) < .05) { bgm.volume = to; clearInterval(bgm._f); done && done(); } else bgm.volume = Math.max(0, Math.min(1, bgm.volume + Math.sign(d) * .05)); }, 40);
+  bgm._f = setInterval(() => { const d = to - bgm.volume; if (Math.abs(d) <= step) { bgm.volume = to; clearInterval(bgm._f); done && done(); } else bgm.volume = Math.max(0, Math.min(1, bgm.volume + Math.sign(d) * step)); }, 40);
 };
 function playMusic(i) {
   const d = ARC[i], song = d && songOf(d), src = song ? song.pv : d && MUSIC[kindOf(d)];
   paintCredit(musicOn && song);
   if (!src) { stopMusic(); return; }
   if (!musicOn) return;
-  const start = () => { const p = bgm.play(); if (p && p.catch) p.catch(() => {}); bgmFade(.7); };
-  if (bgm.dataset.src === src) { if (bgm.paused) start(); else bgmFade(.7); return; }
-  const swap = () => { bgm.dataset.src = src; bgm.src = src; start(); };
+  const start = () => { const p = bgm.play(); if (p && p.catch) p.catch(() => {}); bgmFade(.7, null, .012); };
+  if (bgm.dataset.src === src) { if (bgm.paused) start(); else bgmFade(.7, null, .012); return; }
+  const swap = () => { bgm.volume = 0; bgm.dataset.src = src; bgm.src = src; start(); };
   if (bgm.paused || !bgm.dataset.src) swap(); else bgmFade(0, swap);
 }
 function stopMusic() { paintCredit(null); if (!bgm.paused) bgmFade(0, () => bgm.pause()); }
