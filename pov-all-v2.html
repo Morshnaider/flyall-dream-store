@@ -2981,7 +2981,7 @@ function calcPopup(price, kind = 'ההופעה'){   /* kind: ההופעה / המ
   q('.cc__go').addEventListener('click', e => { e.preventDefault(); close(); });
   addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
   /* it opens on the spend that would cover the dream, rounded to ₪500, as in the flow */
-  return { el: cc, open: () => { setSpend(Math.ceil(Math.max(0, price - have()) / (CALC_MONTHS * CALC_RATE) / 500) * 500); document.body.classList.add('cl--open'); q('.cc__x').focus({ preventScroll: true }); } };
+  return { el: cc, open: () => { setSpend(Math.ceil(Math.max(0, price - have()) / (CALC_MONTHS * CALC_RATE) / 500) * 500); document.querySelectorAll('.cc:not(.cc--inline), .cc-scrim').forEach(n => { n.style.display = n === cc || n === scrim ? '' : 'none'; }); document.body.classList.add('cl--open'); q('.cc__x').focus({ preventScroll: true }); } };
 }
 /* ---- the experience: one deal section (deposit, how it works, buy) that turns into the dates ---- */
 /* each date is a package of its own: a stay from the flight out to the flight home */

@@ -1400,6 +1400,12 @@ body.booked-on .rg,body.booked-on .side{display:none!important}
 /* 18.10: the friendlier terms: a lead line, then "כמה עולה לבטל?" and the three windows in time */
 .acc p.acc__h{padding-bottom:10px;color:var(--ds-black)}
 .acc ul.acc__terms li b{font-weight:700;color:var(--ds-black)}
+/* 18.10: desktop: the side column fits the screen. From step 2 on the event card steps aside (as on mobile), so the ring and the
+   summary stay in view; on step 1, with the event card and the two accordions, the column runs with the page instead of being cut */
+@media (min-width:1024px){
+  body.past1 .grid > .side > .ev{display:none}
+  body:not(.past1) .side{position:static;max-height:none;overflow:visible}
+}
 </style>
 </head>
 <body>
