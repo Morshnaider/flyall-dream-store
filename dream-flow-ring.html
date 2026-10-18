@@ -1693,6 +1693,12 @@ const PACKS = [
   { id: 'plus', name: 'פלוס',  zone: 'יציע ראשי', desc: 'קומה ראשונה מול ' + STAGE + ', שדה ראייה מלא',    up: 1200, color: '#C46FC0', z: 'main' },
   { id: 'vip',  name: 'VIP',   zone: 'פרקט',      desc: EV.kind === 'המשחק' ? 'שורות ראשונות, צמוד למגרש' : 'רחבת עמידה קדמית, 20 מטר מהבמה',         up: 2500, color: '#F2C230', z: 'floor' }
 ];
+/* 18.10: a festival has no seats and no stands: its packages are kinds of pass, with no seating map (demo names) */
+const FEST = EV.kind === 'הפסטיבל';
+if (FEST) PACKS.splice(0, PACKS.length,
+  { id: 'base', name: 'רגיל',     zone: 'כל ימי הפסטיבל', desc: 'כניסה לכל הבמות, בכל ימי הפסטיבל',              up: 0,    color: '#7BC86C' },
+  { id: 'plus', name: 'קומפורט',  zone: 'מתחמי נוחות',     desc: 'גם מתחמי מנוחה, שירותים ובר נפרדים',            up: 1200, color: '#C46FC0' },
+  { id: 'vip',  name: 'VIP',      zone: 'צפייה מוגבהת',    desc: 'גם עמדות צפייה מוגבהות ליד הבמה הראשית',       up: 2500, color: '#F2C230' });
 const HOTELS = !EV.paris ? [
   { id: 'h1', name: 'מלון 4★ ליד ' + (EV.kind === 'המשחק' ? 'האצטדיון' : 'האירוע'), stars: 4, score: '8.6', reviews: 1240, where: EV.city + ' · 5 דק׳ הליכה', up: 0, img: 'assets/flow/room-1.jpg', perks: ['ארוחת בוקר כלולה'] },
   { id: 'h2', name: 'מלון 4★ במרכז ' + EV.city, stars: 4, score: '8.4', reviews: 980, where: EV.city + ' · 10 דק׳ בתחבורה', up: 350, img: 'assets/flow/room-2.jpg', perks: ['ארוחת בוקר כלולה', 'בריכה מקורה'] },
@@ -2084,8 +2090,8 @@ const STEP_UI = [
   /* 1 · package */
   () => '<div class="card pax"><div><h2>כמה נוסעים?</h2><p class="sub">המחיר לכל נוסע</p></div>'
       + '<div class="stepper"><button type="button" data-pax="1" aria-label="נוסע נוסף">+</button><output>' + S.pax + '</output><button type="button" data-pax="-1" aria-label="פחות נוסעים"' + (S.pax <= 1 ? ' disabled' : '') + '>−</button></div></div>'
-      + '<div class="card"><h2>בחירת חבילה</h2><p class="sub">החבילה קובעת את המקום ב' + EV.kind.slice(1) + '. מתחייבים על ישיבה בזוגות, והכרטיס יישלח אליכם 7 ימים לפני המועד.</p>'
-      + arena((find(PACKS, S.pack) || {}).z)
+      + '<div class="card"><h2>בחירת חבילה</h2><p class="sub">' + (FEST ? 'החבילה קובעת את סוג הכרטיס לפסטיבל' : 'החבילה קובעת את המקום ב' + EV.kind.slice(1) + '. מתחייבים על ישיבה בזוגות') + ', והכרטיס יישלח אליכם 7 ימים לפני המועד.</p>'
+      + (FEST ? '' : arena((find(PACKS, S.pack) || {}).z))
       + PACKS.map(p => radio(S.pack === p.id, p.id,
           '<span class="radio"></span><div class="opt__b"><h4><i class="dot" style="background:' + p.color + '"></i>' + p.name + ' · ' + p.zone + '</h4><p>' + p.desc + '</p>'
         /* 18.10: two labelled rows, each in points and ₪: what this package adds, and what it comes to, per traveller */
