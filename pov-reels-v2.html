@@ -3721,15 +3721,36 @@ reelShare.onclick = async () => {
 /* 18.10: music for the dream: opening an experience (a tap, so sound is allowed) plays the track of its world;
    a swipe to another one crossfades; closing fades out. The button mutes, for the rest of the visit */
 const MUSIC = { 'ההופעה': 'assets/music/concert-vastness.mp3', 'המשחק': 'assets/music/match-sports-highlights.mp3', 'הפסטיבל': 'assets/music/festival-techno-fest-vibes.mp3' };
-const bgm = new Audio(); bgm.loop = true; bgm.volume = 0;
+const bgm = new Audio(); bgm.loop = true; bgm.crossOrigin = 'anonymous'; bgm.preload = 'auto';
+/* 18.10: iPhone ignores a media element's volume, so a fade written on it never ended there: the song never
+   stopped or changed. The fades now run on a Web Audio gain node (Apple's previews allow it), and where that
+   isn't possible every change happens at once instead of waiting on a fade that can't finish */
+let mCtx = null, mGain = null;
+function musicGraph() {
+  if (mGain) { if (mCtx.state === 'suspended') mCtx.resume(); return true; }
+  try {
+    mCtx = new (window.AudioContext || window.webkitAudioContext)();
+    mGain = mCtx.createGain(); mGain.gain.value = 0;
+    mCtx.createMediaElementSource(bgm).connect(mGain); mGain.connect(mCtx.destination);
+    if (mCtx.state === 'suspended') mCtx.resume();
+    return true;
+  } catch (e) { mCtx = mGain = null; return false; }
+}
 let musicOn = true; try { musicOn = sessionStorage.getItem('flyall-music') !== 'off'; } catch (e) {}
 const reelSnd = el('button', 'reel__snd', '<svg class="off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg><svg class="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>');
 reelSnd.type = 'button';
 const paintSnd = () => { reelSnd.setAttribute('aria-pressed', musicOn); reelSnd.setAttribute('aria-label', musicOn ? 'השתקת המוזיקה' : 'הפעלת מוזיקה'); };
 paintSnd(); reel.appendChild(reelSnd);
-const bgmFade = (to, done, step = .05) => {   /* 18.10: step .012 is a slow ~2.5-second rise, so a dream never starts with a jolt */
-  clearInterval(bgm._f);
-  bgm._f = setInterval(() => { const d = to - bgm.volume; if (Math.abs(d) <= step) { bgm.volume = to; clearInterval(bgm._f); done && done(); } else bgm.volume = Math.max(0, Math.min(1, bgm.volume + Math.sign(d) * step)); }, 40);
+const bgmFade = (to, done, step = .05) => {   /* step .012: a slow ~2.5-second rise, so a dream never starts with a jolt */
+  clearTimeout(bgm._t);
+  const secs = step < .02 ? 2.5 : .6;
+  if (mGain) {
+    const g = mGain.gain, now = mCtx.currentTime;
+    g.cancelScheduledValues(now); g.setValueAtTime(g.value, now); g.linearRampToValueAtTime(to, now + secs);
+    if (done) bgm._t = setTimeout(done, secs * 1000 + 30);
+    return;
+  }
+  bgm.volume = to; done && done();   /* no gain node: no fade, but never stuck */
 };
 function playMusic(i) {
   const d = ARC[i], song = d && songOf(d), src = song ? song.pv : d && MUSIC[kindOf(d)];
@@ -3738,10 +3759,14 @@ function playMusic(i) {
   if (!musicOn) return;
   const start = () => { const p = bgm.play(); if (p && p.catch) p.catch(() => {}); bgmFade(.7, null, .012); };
   if (bgm.dataset.src === src) { if (bgm.paused) start(); else bgmFade(.7, null, .012); return; }
-  const swap = () => { bgm.volume = 0; bgm.dataset.src = src; bgm.src = src; start(); };
+  const swap = () => { if (mGain) { mGain.gain.cancelScheduledValues(mCtx.currentTime); mGain.gain.value = 0; } else bgm.volume = 1; bgm.dataset.src = src; bgm.src = src; start(); };
   if (bgm.paused || !bgm.dataset.src) swap(); else bgmFade(0, swap);
 }
 function stopMusic() { paintCredit(null); if (!bgm.paused) bgmFade(0, () => bgm.pause()); }
+/* leaving the page, or the app going to the background, stops the music at once */
+const hushNow = () => { clearTimeout(bgm._t); bgm.pause(); if (mGain) mGain.gain.value = 0; };
+document.addEventListener('visibilitychange', () => { if (document.hidden) hushNow(); });
+addEventListener('pagehide', hushNow);
 /* the credit the preview needs, as quiet as it can be: under the buttons, small and dim, a link to Apple Music */
 const credit = el('a', 'reel__credit'); credit.target = '_blank'; credit.rel = 'noopener'; reel.appendChild(credit);
 function paintCredit(song) {
@@ -3749,6 +3774,7 @@ function paintCredit(song) {
   if (song) { credit.href = song.am; credit.innerHTML = '♪ ' + song.t + ' · Apple Music'; }
 }
 reelSnd.onclick = () => {
+  musicGraph();
   musicOn = !musicOn; paintSnd();
   try { sessionStorage.setItem('flyall-music', musicOn ? 'on' : 'off'); } catch (e) {}
   musicOn ? playMusic(Math.max(0, reelIndex)) : stopMusic();
@@ -3803,6 +3829,7 @@ reelTrack.addEventListener('scroll', () => requestAnimationFrame(() => {
 }), { passive:true });
 
 function openReel(i){
+  musicGraph();                    /* inside the tap: Web Audio may start */
   playMusic(i);                    /* inside the tap: the dream's music may start */
   reel.classList.add('open');
   document.body.classList.add('reel-open');
