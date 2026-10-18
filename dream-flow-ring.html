@@ -1656,18 +1656,22 @@ const EV = (() => {
     at: new Date(2027, 4, 14, 21, 0, 0), when: 'יום שישי, 14.5.2027 · 21:00', cdLbl: 'עד ההופעה', air: 'CDG', map: true, paris: true };
   if (!q.get('ev')) return d;
   const dm = s => { const [x, y] = s.split('.').map(Number); return new Date(2027, y - 1, x); };
+  const dw = s => ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'][dm(s).getDay()];   /* 18.10: the real weekdays */
   const kind = q.get('kind') || 'ההופעה';
   const city = q.get('city') || '';
   const AIR = { 'מדריד': 'MAD', 'פריז': 'CDG', 'בלגיה': 'BRU', 'אלפ ד׳ואז': 'GNB', 'גלזגו': 'GLA', 'מנצ׳סטר': 'MAN', 'מינכן': 'MUC', 'רומא': 'FCO', 'נבוורת׳': 'LTN', 'לונדון': 'LHR', 'מונזה': 'MXP', 'ברצלונה': 'BCN' };
   const a = q.get('a'), b = q.get('b');
   return { name: q.get('ev'), city, kind, cat: kind === 'המשחק' ? 'ספורט' : kind === 'הפסטיבל' ? 'פסטיבלים' : 'הופעות',
     logo: (q.get('logo') || '').split(',').filter(Boolean).map(f => 'assets/logos/' + f), img: q.get('img') || d.img, venue: city,
-    a, b, price: +q.get('p') || d.price, at: dm(a), when: 'יציאה ' + a + ' · חזרה ' + b + '.2027', cdLbl: 'עד הטיסה',
+    a, b, price: +q.get('p') || d.price, at: dm(a), when: 'יציאה יום ' + dw(a) + ' ' + a + ' · חזרה יום ' + dw(b) + ' ' + b + '.2027', cdLbl: 'עד הטיסה',
+    ev: q.get('e') || '', evLbl: q.get('el') || kind,   /* 18.10: the event's own date, beside the package's */
     air: AIR[city] || 'CDG', map: false, paris: city === 'פריז' };
 })();
 const DM = s => { const [x, y] = s.split('.').map(Number); return new Date(2027, y - 1, x); };
 const NIGHTS = Math.round((DM(EV.b) - DM(EV.a)) / 864e5);
 const DATES = EV.a + '–' + EV.b + '.2027';
+const EV_DAY = (e => { if (!e || e.includes('–')) return e ? e + '.2027' : ''; const [x, y] = e.split('.').map(Number);
+  return 'יום ' + ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'][new Date(2027, y - 1, x).getDay()] + ', ' + e + '.2027'; })(EV.ev);
 const DUE = (dt => dt.getDate() + '.' + (dt.getMonth() + 1) + '.' + dt.getFullYear())(new Date(EV.at.getTime() - 60 * 864e5));   /* the balance, 60 days before */
 const MONTHS = Math.max(1, Math.round((EV.at - new Date()) / (30.4 * 864e5)));   /* card months until the dream */
 const BASE = EV.price;     /* per passenger, basic package */
@@ -1867,7 +1871,7 @@ const GROUP = (() => {
       + '<span class="gx__ok">' + OK_IC + '</span>'
       + '<h4 class="gx__h"><b>הבקשה התקבלה</b></h4>'
       + '<p class="gx__p">נציג שלנו יחזור אליכם בהקדם עם זמינות ומחיר</p>'
-      + '<div class="gx__sum"><p>החוויה<b>' + EV.name + (EV.city ? ' · ' + EV.city : '') + '</b></p><p>המועד<b>' + DATES + '</b></p><p>מספר הנוסעים<b>' + n + '</b></p></div>'
+      + '<div class="gx__sum"><p>החוויה<b>' + EV.name + (EV.city ? ' · ' + EV.city : '') + '</b></p><p>המועד<b>' + DATES + '</b></p>' + (EV_DAY ? '<p>' + EV.evLbl.replace(/^ה/, '') + '<b>' + EV_DAY + '</b></p>' : '') + '<p>מספר הנוסעים<b>' + n + '</b></p></div>'
       + '<button class="gx__go" type="button" data-gx-x>סגירה</button>';
   };
   const bad = (inp, msg) => {
@@ -1966,9 +1970,9 @@ function sideHTML() {
   if (fl && S.step >= 3) rows.push(['טיסה', fl.legs.map(l => l[0]).join(' / ')]);   /* 18.10: the summary builds up as you go: the flight once you reach its step */
   const t = total(), dep = Math.round(t * 0.2);
   return '<article class="card ev"><div class="ev__img" style="background-image:url(' + EV.img + ')">' + (EV.logo.length ? '<span class="ev__logos">' + EV.logo.map(f => '<img class="ev__logo" src="' + f + '" alt="">').join('') + '</span>' : '') + '</div>'
-    + '<div class="ev__body"><p class="ev__kick">' + EV.cat + ' · 2027</p><h2 class="ev__t">' + EV.name + (EV.city ? ' · ' + EV.city : '') + '</h2>'
+    + '<div class="ev__body"><h2 class="ev__t">' + EV.name + (EV.city ? ' · ' + EV.city : '') + '</h2>'
     + '<div class="ev__cd" role="timer" aria-label="ספירה לאחור ' + EV.cdLbl + '">' + cdHTML() + '</div>'
-    + '<ul class="ev__meta"><li>' + IC.pin + EV.venue + '</li><li>' + IC.cal + EV.when + '</li></ul></div></article>'
+    + '<ul class="ev__meta"><li>' + IC.pin + EV.venue + '</li>' + (EV_DAY ? '<li class="ev__day">' + IC.cal + '<span>' + EV.evLbl + ': <b>' + EV_DAY + '</b></span></li>' : '') + '<li>' + IC.cal + EV.when + '</li></ul></div></article>'
     + '<article class="card sum"><h3>סיכום</h3><dl>' + rows.map(([a, b]) => '<dt>' + a + '</dt><dd>' + b + '</dd>').join('') + '</dl>'
     + '<div class="sum__tot"><span>סה״כ</span><span>' + (isGuest() ? '<b>₪' + fmt(t) + '</b><small>(' + fmt(t) + ' נק׳)</small>' : '<b>' + fmt(t) + ' נק׳</b><small>(₪' + fmt(t) + ')</small>') + '</span></div>'
     /* 18.10: what is paid today, first and largest; the rest, quieter, under it */

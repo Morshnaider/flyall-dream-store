@@ -1715,6 +1715,18 @@ small.ils{font-size:max(12px,.8em)}
 .fa-avatar__txt{font-size:12px}
 .bn__coin{font-size:12px}
 .xd-t small{font-size:max(12px,1em)}
+/* 18.10: the event's own date under the package's dates */
+.xd-t__d{display:flex;flex-direction:column;align-items:center;gap:5px}
+.xd-t__d em{font:500 12px/1.2 var(--ds-font);font-style:normal;color:#E3CCFF;white-space:nowrap}
+.xd-pick{flex-wrap:wrap}
+.xd-pick__ev{flex-basis:100%;color:#E3CCFF;font-weight:500}
+/* 18.10: each window's own price — the dates can cost differently */
+.xd-t__r{display:flex;align-items:baseline;gap:7px}
+.xd-t__dow{font:500 13px/1 var(--ds-font);color:rgba(255,255,255,.75);white-space:nowrap}
+.xd-t__p{display:flex;flex-direction:column;align-items:center;gap:4px}
+.xd-t .xd-t__pts{font:700 14px/1 var(--ds-font-btn);color:#fff;direction:rtl;white-space:nowrap}
+.xd-t.on .xd-t__pts{color:#E3CCFF}
+@media (max-width:1023px){ .xd-t__d{align-items:flex-start} .xd-t__p{align-items:flex-end} .xd-row .xd-t .xd-t__pts{font-size:16px} }
 
 /* ===== X1 + X2 (18.10, design-change log) =====
    X1.1: no "משריינים עכשיו" CTA (neither in the deal nor sticky) and no "יש לך כעת": the dates show as soon as the experience opens.
@@ -3087,18 +3099,27 @@ const entryTicket = d => /Tomorrowland/.test(d.event) ? 'כרטיס כניסה �
 
 /* ---- the experience: one deal section (deposit, how it works, buy) that turns into the dates ---- */
 /* each date is a package of its own: a stay from the flight out to the flight home */
+/* each window: [out, back, price, the event itself — a day, or a festival's days] (18.10: demo dates) */
 const XD_ALL = {
-  'אל קלאסיקו':                [['07.05', '10.05', 6200], ['08.05', '11.05', 6400]],
-  'סלין דיון':                  [['06.05', '09.05', 5700], ['08.05', '12.05', 5900], ['14.05', '17.05', 6300],
-                                 ['18.05', '21.05', 5800], ['21.05', '24.05', 6100], ['25.05', '28.05', 5500], ['27.05', '31.05', 6000]],
-  'Tomorrowland':               [['16.07', '19.07', 6100], ['23.07', '26.07', 6300]],
-  'גמר ליגת האלופות':           [['03.06', '06.06', 6800], ['04.06', '07.06', 7000]],
-  'Tomorrowland Winter':        [['20.03', '27.03', 6400]],
-  'פורמולה 1':                  [['03.09', '06.09', 6500], ['04.09', '07.09', 6700]],
-  'צ׳לסי – מנצ׳סטר סיטי':      [['17.04', '20.04', 5400], ['18.04', '21.04', 5600]],
-  'רולאן גארוס':                [['28.05', '31.05', 5900], ['04.06', '07.06', 6200]],
-  'אואזיס':                     [['13.05', '16.05', 5200], ['12.06', '15.06', 5400], ['08.07', '11.07', 5600], ['21.07', '24.07', 5600], ['10.09', '13.09', 5300]]
+  'אל קלאסיקו':                [['07.05', '10.05', 6200, '09.05'], ['08.05', '11.05', 6400, '09.05']],
+  'סלין דיון':                  [['06.05', '09.05', 5700, '08.05'], ['08.05', '12.05', 5900, '08.05'], ['14.05', '17.05', 6300, '15.05'],
+                                 ['18.05', '21.05', 5800, '19.05'], ['21.05', '24.05', 6100, '22.05'], ['25.05', '28.05', 5500, '26.05'], ['27.05', '31.05', 6000, '29.05']],
+  'Tomorrowland':               [['16.07', '19.07', 6100, '16.07–18.07'], ['23.07', '26.07', 6300, '23.07–25.07']],
+  'גמר ליגת האלופות':           [['03.06', '06.06', 6800, '05.06'], ['04.06', '07.06', 7000, '05.06']],
+  'Tomorrowland Winter':        [['20.03', '27.03', 6400, '20.03–27.03']],
+  'פורמולה 1':                  [['03.09', '06.09', 6500, '05.09'], ['04.09', '07.09', 6700, '05.09']],
+  'צ׳לסי – מנצ׳סטר סיטי':      [['17.04', '20.04', 5400, '19.04'], ['18.04', '21.04', 5600, '19.04']],
+  'רולאן גארוס':                [['28.05', '31.05', 5900, '29.05'], ['04.06', '07.06', 6200, '06.06']],
+  'אואזיס':                     [['13.05', '16.05', 5200, '14.05'], ['12.06', '15.06', 5400, '13.06'], ['08.07', '11.07', 5600, '09.07'], ['21.07', '24.07', 5600, '22.07'], ['10.09', '13.09', 5300, '11.09']]
 };
+/* 18.10: the event's own date, beside the package's: "ההופעה · יום ו׳ 08.05" */
+const EV_LBL = { 'פורמולה 1': 'המרוץ', 'רולאן גארוס': 'המשחקים', 'Tomorrowland': 'הפסטיבל', 'Tomorrowland Winter': 'הפסטיבל' };
+const evLbl = d => EV_LBL[d.event.split(' · ')[0]] || kindOf(d);
+const DOW = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
+/* 18.10: the window's real weekdays, "ה׳–א׳" beside "06.05–09.05" */
+const dowOf = x => { const [d, m] = x.split('.').map(Number); return DOW[new Date(2027, m - 1, d).getDay()]; };
+const dows = (a, b) => dowOf(a) + '–' + dowOf(b);
+const evDay = e => { if (!e || e.includes('–')) return e || ''; const [x, y] = e.split('.').map(Number); return 'יום ' + DOW[new Date(2027, y - 1, x).getDay()] + ' ' + e; };
 const nights = (a, b) => {
   const [d1, m1] = a.split('.').map(Number), [d2, m2] = b.split('.').map(Number);
   return Math.round((new Date(2027, m2 - 1, d2) - new Date(2027, m1 - 1, d1)) / 864e5);
@@ -3134,8 +3155,9 @@ function dealHTML(d){
     +   '<p class="xp__enough"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>יש לכם <b>' + nfmt(ENOUGH) + ' נק׳</b>, מספיק כדי לרכוש הכל בנקודות</span><i></i><i></i><i></i></p>'
     +   '<div class="xd-in"><button class="xd-back" type="button">' + BACK_IC + 'חזרה</button>'
     +     '<h4 class="xd-h">מתי בא לכם <b>לטוס?</b></h4>'
-    +     '<div class="xd-row">' + xd.map(([a, b, p], i) => '<button type="button" class="xd-t' + (p ? '' : ' out') + '" data-xd="' + i + '"' + (p ? '' : ' disabled') + '>'
-    +       '<b dir="ltr">' + a + '–' + b + '</b><small>' + (p ? nights(a, b) + ' לילות' : 'אזל') + '</small></button>').join('') + '</div>'
+    +     '<div class="xd-row">' + xd.map(([a, b, p, e], i) => '<button type="button" class="xd-t' + (p ? '' : ' out') + '" data-xd="' + i + '"' + (p ? '' : ' disabled') + '>'
+    +       '<span class="xd-t__d"><span class="xd-t__r"><b dir="ltr">' + a + '–' + b + '</b><span class="xd-t__dow">' + dows(a, b) + '</span></span>' + (e ? '<em>' + evLbl(d) + ' · <bdi>' + evDay(e) + '</bdi></em>' : '') + '</span>'
+    +       '<span class="xd-t__p">' + (p ? '<b class="xd-t__pts">' + nfmt(p) + ' נק׳</b>' : '') + '<small>' + (p ? nights(a, b) + ' לילות' : 'אזל') + '</small></span></button>').join('') + '</div>'
     +     '<p class="xd-pick"></p>'
     +     '<div class="xd-foot"><a class="xd-go" href="dream-flow-ring.html#1" aria-disabled="true">לבחירת החבילה</a></div></div>'
     + '</section>'
@@ -3179,13 +3201,13 @@ function wireDeal(sl, d){
   addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
   xin.addEventListener('click', e => {
     const t = e.target.closest('[data-xd]'); if (!t || t.disabled) return;
-    const [a, b, p] = xd[+t.dataset.xd];
+    const [a, b, p, evd] = xd[+t.dataset.xd];
     xin.querySelectorAll('[data-xd]').forEach(n => n.classList.toggle('on', n === t));
-    xin.querySelector('.xd-pick').innerHTML = '<span><bdi dir="ltr">' + a + '–' + b + '</bdi> · ' + nights(a, b) + ' לילות' + (city ? ' ב' + city.replace(/^ב/, '') : '') + '</span>';   /* 18.10: no price again here: the experience said it a moment ago */
+    xin.querySelector('.xd-pick').innerHTML = '<span><bdi dir="ltr">' + a + '–' + b + '</bdi> (' + dows(a, b) + ') · ' + nights(a, b) + ' לילות' + (city ? ' ב' + city.replace(/^ב/, '') : '') + '</span>' + (evd ? '<span class="xd-pick__ev">' + evLbl(d) + ' · <bdi>' + evDay(evd) + '</bdi></span>' : '');   /* 18.10: no price again here: the experience said it a moment ago */
     go.removeAttribute('aria-disabled');
     /* 18.10: the booking flow opens on this dream: its name, city, dates, price and picture */
     const [ttl, place] = d.event.split(' · '), stop = (String((d.dates || [])[+t.dataset.xd] || '').split(' · ')[1] ? String(d.dates[+t.dataset.xd]).split(' · ')[0] : '');
-    const q = new URLSearchParams({ ev: ttl, city: stop || place || '', kind: kindOf(d), a, b, p: String(p),
+    const q = new URLSearchParams({ ev: ttl, city: stop || place || '', kind: kindOf(d), a, b, p: String(p), e: evd || '', el: evLbl(d),
       logo: (d.logos || []).join(','), img: d.poster || ('assets/posters/' + String(d.src || '').split('/').pop().replace('.mp4', '.jpg')) });
     go.href = 'dream-flow-ring.html?' + q + '#1';
   });
