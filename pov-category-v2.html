@@ -3467,6 +3467,16 @@ function toSlide(i){
 }
 reelPrev.onclick = () => toSlide(reelIndex - 1);
 reelNext.onclick = () => toSlide(reelIndex + 1);
+/* 18.10: a tap on the story moves on to the next one, as in stories everywhere: on the cover (a phone) or the video
+   (desktop) — never on a button, the deal, or once the details are scrolled into */
+reelTrack.addEventListener('click', e => {
+  if (e.target.closest('button, a, input, select, label, details, .xp__deal, .reel__act, .rd__have, .xme, .reel__credit')) return;
+  const sl = e.target.closest('.reel__slide');
+  if (!sl || sl.scrollTop > 60) return;
+  const v = sl.querySelector('video'), r = v && v.getBoundingClientRect();   /* only where the video is: beside it, on desktop, sit the details */
+  if (!r || e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
+  toSlide(reelIndex + 1);
+});
 document.body.appendChild(reel);
 
 let reelIndex = -1;
