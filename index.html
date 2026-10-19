@@ -39,6 +39,18 @@ document.addEventListener('click', function (e) {
 .xp__deal .xp__deal__top{flex-direction:column;justify-content:center;align-items:center;gap:10px;text-align:center}
 .xp__deal .xp__dep{justify-content:center}
 .xp__deal .xp__dep svg{order:2}   /* the shield after "20% מקדמה", at the line's end */
+
+/* 18.10: the lobby cards' sound hint */
+.cell__snd{position:absolute;z-index:4;top:12px;inset-inline-end:12px;display:flex;align-items:center;gap:2px;height:30px;padding:0 9px 0 8px;border-radius:15px;
+  background:rgba(6,7,16,.5);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;pointer-events:none}
+.cell__snd svg{width:16px;height:16px;margin-inline-start:3px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;order:2}
+.cell__snd i{display:block;width:2.5px;height:10px;border-radius:2px;background:currentColor;transform-origin:bottom;transform:scaleY(.35)}
+.cell.mid .cell__snd i{animation:sndBar .9s ease-in-out infinite}
+.cell.mid .cell__snd i:nth-child(3){animation-delay:.2s}
+.cell.mid .cell__snd i:nth-child(4){animation-delay:.45s}
+@keyframes sndBar{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+@media (prefers-reduced-motion:reduce){ .cell.mid .cell__snd i{animation:none;transform:scaleY(.7)} }
+@media (min-width:1024px){ .cell__snd{top:16px;inset-inline-end:16px;height:32px} }
 </style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -2474,6 +2486,10 @@ function buildArc(){
                           .join(d.logos.length > 1 ? '<em>&amp;</em>' : '');
     const [title, place] = d.event.split(' · ');
     c.appendChild(el('div','crest'+(d.logos.length > 1 ? ' duo' : ''), logos));
+    /* 18.10: a sound hint, nothing playing yet: a speaker and three bars that dance on the middle card — the music comes when it opens */
+    const snd = el('span', 'cell__snd', '<svg viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg><i></i><i></i><i></i>');
+    snd.setAttribute('aria-hidden', 'true');
+    c.appendChild(snd);
     const cp = el('div','copy',
       '<div class="event">'+title+'</div>'+
       '<div class="meta">'+[place, d.date].map(t => '<span>'+t+'</span>').join('<i></i>')+'</div>');
