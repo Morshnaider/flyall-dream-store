@@ -62,6 +62,13 @@ document.addEventListener('click', function (e) {
   font:700 14px/1 var(--ds-font);text-decoration:none}
 .xp__deal .xp__dep .g-only,.xp__deal .xp__dep .u-only{display:inline}
 body.is-guest .xp__deal .xp__dep .u-only,body:not(.is-guest) .xp__deal .xp__dep .g-only,body:not(.is-guest) .xp__deal .xp__join{display:none!important}
+
+/* 18.10: a match date that isn't final yet */
+.tbc{display:inline-block;margin-inline-start:4px;padding:2px 7px;border-radius:9px;background:rgba(255,196,92,.16);color:#FFD27A;font:600 11px/1.3 var(--ds-font);vertical-align:1px;white-space:nowrap}
+.xd-tbc{display:flex;align-items:flex-start;gap:8px;margin:10px 0 0;padding:10px 12px;border-radius:12px;background:rgba(255,196,92,.1);border:1px solid rgba(255,196,92,.28);
+  font:400 13px/1.45 var(--ds-font);color:rgba(255,255,255,.88)}
+.xd-tbc b{color:#FFD27A;font-weight:700}
+.xd-tbc svg{flex:none;width:17px;height:17px;margin-top:1px;fill:none;stroke:#FFD27A;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 </style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -3358,7 +3365,12 @@ const DOW = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', '
 const dowOf = x => { const [d, m] = x.split('.').map(Number); return DOW[new Date(2027, m - 1, d).getDay()]; };
 const dows = (a, b) => dowOf(a) + ' – ' + dowOf(b);   /* 18.10: the days in full, "שישי – ראשון" */
 /* 18.10: the event's date as a sentence: "המשחק ביום ראשון, 09.05" / "הפסטיבל בתאריכים 16.07–18.07" */
+/* 18.10: a league match can move: its date isn't final until the league fixes it (Issta Sport marks it too).
+   DEMO flags: which matches are not final comes from Issta Sport's package */
+const TBC = { 'אל קלאסיקו': 1, 'צ׳לסי – מנצ׳סטר סיטי': 1 };
+const isTbc = d => !!TBC[d.event.split(' · ')[0]];
 const evLine = (d, e) => { if (!e) return ''; if (e.includes('–')) return evLbl(d) + ' בתאריכים <bdi dir="ltr">' + e + '</bdi>';
+  if (isTbc(d)) { const [x, y] = e.split('.').map(Number); return evLbl(d) + ' צפוי ביום ' + DOW[new Date(2027, y - 1, x).getDay()] + ', <bdi dir="ltr">' + e + '</bdi> <span class="tbc">לא סופי</span>'; }
   const [x, y] = e.split('.').map(Number); return evLbl(d) + ' ביום ' + DOW[new Date(2027, y - 1, x).getDay()] + ', <bdi dir="ltr">' + e + '</bdi>'; };
 const evDay = e => { if (!e || e.includes('–')) return e || ''; const [x, y] = e.split('.').map(Number); return 'יום ' + DOW[new Date(2027, y - 1, x).getDay()] + ' ' + e; };
 const nights = (a, b) => {
@@ -3399,6 +3411,7 @@ function dealHTML(d){
     +   '<p class="xp__enough"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>יש לכם <b>' + nfmt(ENOUGH) + ' נק׳</b>, מספיק כדי לרכוש הכל בנקודות</span><i></i><i></i><i></i></p>'
     +   '<div class="xd-in"><button class="xd-back" type="button">' + BACK_IC + 'חזרה</button>'
     +     '<h4 class="xd-h">מתי בא לכם <b>לטוס?</b></h4>'
+    +     (isTbc(d) ? '<p class="xd-tbc"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.5l3 2"/></svg><span><b>מועד המשחק עדיין לא סופי.</b> הליגה קובעת את התאריך הסופי, ונעדכן אתכם ברגע שייקבע.</span></p>' : '')
     +     '<div class="xd-row">' + xd.map(([a, b, p, e], i) => '<button type="button" class="xd-t' + (p ? '' : ' out') + '" data-xd="' + i + '"' + (p ? '' : ' disabled') + '>'
     +       '<span class="xd-t__d"><span class="xd-t__r"><b dir="ltr">' + a + '–' + b + '</b><span class="xd-t__dow">' + dows(a, b) + '</span></span>' + (e ? '<em>' + evLine(d, e) + '</em>' : '') + '</span>'
     +       '<span class="xd-t__p"><small>' + (p ? nights(a, b) + ' לילות' : 'אזל') + '</small></span></button>').join('') + '</div>'
@@ -3453,7 +3466,7 @@ function wireDeal(sl, d){
     go.removeAttribute('aria-disabled');
     /* 18.10: the booking flow opens on this dream: its name, city, dates, price and picture */
     const [ttl, place] = d.event.split(' · '), stop = (String((d.dates || [])[+t.dataset.xd] || '').split(' · ')[1] ? String(d.dates[+t.dataset.xd]).split(' · ')[0] : '').replace(/^סופ״ש.*$/, '');   /* 18.10: a festival weekend ("סופ״ש ראשון") is not a city */
-    const q = new URLSearchParams({ ev: ttl, city: stop || place || '', kind: kindOf(d), a, b, p: String(p), e: evd || '', el: evLbl(d),
+    const q = new URLSearchParams({ ev: ttl, city: stop || place || '', kind: kindOf(d), a, b, p: String(p), e: evd || '', el: evLbl(d), tbc: isTbc(d) ? '1' : '',
       logo: (d.logos || []).join(','), img: d.poster || ('assets/posters/' + String(d.src || '').split('/').pop().replace('.mp4', '.jpg')) });
     go.href = 'dream-flow-ring.html?' + q + '#1';
   });
