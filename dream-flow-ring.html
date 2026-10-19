@@ -39,6 +39,13 @@ document.addEventListener('click', function (e) {
 .ev__meta li.ev__tbc{align-items:flex-start;margin-top:4px;padding:9px 11px;border-radius:12px;background:#FFF6E5;border:1px solid #FFE2A8;color:#5B4A1F;font-size:13px;line-height:1.45}
 .ev__meta li.ev__tbc svg{stroke:#B7791F;margin-top:1px}
 .ev__meta li.ev__tbc b{color:#7A4E00}
+
+/* 18.10: flights as a choice */
+.flight--pick{position:relative;cursor:pointer}
+.flight--pick .radio{position:absolute;top:14px;inset-inline-end:14px}
+.flight--pick .opt__b{padding-inline-end:34px}
+.fl__up{display:inline-flex;align-items:baseline;gap:4px}
+.fl__up small{font:400 12px/1 var(--ds-font);color:var(--ds-gray)}
 </style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -1817,7 +1824,7 @@ const STEPS = ['חבילה', 'מלון', 'חדר', 'טיסה', 'סיכום ות�
    one option means no hotel step; one room variant, no room step. The flight comes with the package and keeps its own step,
    to read, as in the rest of the site */
 const SKIP = i => (i === 1 && HOTELS.length < 2) || (i === 2 && ROOMS().length < 2);
-const autoPick = () => { if (HOTELS.length === 1) S.hotel = HOTELS[0].id; if (ROOMS().length === 1) S.room = ROOMS()[0].id; S.flight = 'f1'; };
+const autoPick = () => { if (HOTELS.length === 1) S.hotel = HOTELS[0].id; if (ROOMS().length === 1) S.room = ROOMS()[0].id; if (FLIGHTS.length === 1) S.flight = FLIGHTS[0].id; };
 const nextLbl = () => { if (S.step >= 3) return NEXT[S.step]; let j = S.step + 1; while (j < 4 && SKIP(j)) j++;
   return j === 1 ? 'המשך למלון' : j === 2 ? 'המשך לחדר' : 'המשך לטיסה'; };
 /* as in Figma: after the flight, step 5 asks who the booking is for, then "מעבר להזמנה" opens the checkout
@@ -1833,7 +1840,7 @@ const EMPTY = { fn: '', ln: '', mail: '', tel: '', efn: '', eln: '' };
 const detailsOk = () => REQ.every(k => (S.f[k] || '').trim());
 
 /* nothing is pre-picked: each step's button wakes only once its choice is made */
-const S = { step: 0, pax: 1, pack: null, hotel: null, room: null, flight: 'f1', inst: 1, usePts: true, pay: 'dep', terms: false,
+const S = { step: 0, pax: 1, pack: null, hotel: null, room: null, flight: FLIGHTS.length > 1 ? null : 'f1', inst: 1, usePts: true, pay: 'dep', terms: false,
   forWho: 'me', news: true, detailsDone: false, f: { fn: 'ענת', ln: 'ישראלי', mail: 'anatisraeli@gmail.com', tel: '052-0000000', efn: 'Anat', eln: 'Israeli' } };
 const find = (arr, id) => arr.find(x => x.id === id);
 const up = (arr, id) => (find(arr, id) || { up: 0 }).up;
@@ -2220,14 +2227,20 @@ const STEP_UI = [
         + '<div class="opt__f">' + (r.up ? pts(r.up, true) + (FD ? '<small class="fd__pp">לאדם</small>' : '') : '<span class="pts pts--inc">כלול</span>') + '</div></div><span class="radio"></span>', 'lodge')).join('')
       + '</div></div>';
   },
-  /* 4 · flight preview */
-  /* one flight comes with the package: shown as information, nothing to choose */
-  () => '<div class="card"><h2>הטיסות שלכם</h2><p class="sub">טיסות ישירות הלוך־חזור, כלולות בחבילה</p><div style="margin-top:14px">'
-      + FLIGHTS.slice(0, 1).map(f => ('<div class="opt flight flight--info"><div class="opt__b"><span class="pill">כלול בחבילה</span>'
-        + f.legs.map(l => '<div class="air" style="margin-top:14px"><i>' + (f.airline || 'EL AL') + '</i><span>' + l[0] + '</span></div>'
-          + '<div class="leg"><div class="leg__pt"><b>' + l[1] + '</b><small>' + l[2] + '</small></div><div class="leg__mid">ישירה<i></i>' + l[5] + '</div><div class="leg__pt"><b>' + l[3] + '</b><small>' + l[4] + '</small></div></div>').join('')
-        + (f.note ? '<p class="pay__fine" style="margin-top:12px">' + IC.info + f.note + '</p>' : '<details class="bag"><summary>פירוט כבודה<span>›</span></summary><p>תיק יד 8 ק״ג, טרולי 8 ק״ג ומזוודה 23 ק״ג לכל נוסע.</p></details>') + '</div></div>')).join('')
-      + '</div></div>',
+  /* 4 · flights: one pair from the package is shown to read; several (ALP can return more than one pair) are a choice,
+     the cheapest included and every other one with its supplement per traveller (18.10) */
+  () => {
+    const many = FLIGHTS.length > 1;
+    const legs = f => f.legs.map(l => '<div class="air" style="margin-top:14px"><i>' + (f.airline || 'EL AL') + '</i><span>' + l[0] + '</span></div>'
+      + '<div class="leg"><div class="leg__pt"><b>' + l[1] + '</b><small>' + l[2] + '</small></div><div class="leg__mid">ישירה<i></i>' + l[5] + '</div><div class="leg__pt"><b>' + l[3] + '</b><small>' + l[4] + '</small></div></div>').join('');
+    const foot = f => f.note ? '<p class="pay__fine" style="margin-top:12px">' + IC.info + f.note + '</p>' : '<details class="bag"><summary>פירוט כבודה<span>›</span></summary><p>תיק יד 8 ק״ג, טרולי 8 ק״ג ומזוודה 23 ק״ג לכל נוסע.</p></details>';
+    const tag = f => f.up ? '<span class="fl__up">' + pts(f.up, true) + '<small>לנוסע</small></span>' : '<span class="pill">כלול בחבילה</span>';
+    return '<div class="card"><h2>' + (many ? 'בחירת טיסה' : 'הטיסות שלכם') + '</h2><p class="sub">' + (many ? 'טיסות ישירות הלוך־חזור · בוחרים את השעות שנוחות לכם' : 'טיסות ישירות הלוך־חזור, כלולות בחבילה') + '</p><div style="margin-top:14px">'
+      + FLIGHTS.map(f => many
+        ? radio(S.flight === f.id, f.id, '<div class="opt__b">' + tag(f) + legs(f) + foot(f) + '</div><span class="radio"></span>', 'flight flight--pick')
+        : '<div class="opt flight flight--info"><div class="opt__b">' + tag(f) + legs(f) + foot(f) + '</div></div>').join('')
+      + '</div></div>';
+  },
   /* 5 · summary and payment — one step: who it's for, then the payment under it */
   () => (S.detailsDone ? '<p class="backrow"><a class="back" href="#" data-edit>' + IC.back + 'חזרה לסיכום</a></p>' : fdExtrasHTML()) + whoHTML() + (S.detailsDone ? '<div class="paywrap">' + payHTML() + '</div>' : ''),
   /* 6 · confirmed */
@@ -2435,6 +2448,7 @@ if (S.step > 1) S.hotel = (HOTELS[0] || {}).id;
 if (S.step > 2) S.room = (ROOMS()[0] || {}).id;
 if (S.step > 0) autoPick();
 while (S.step > 0 && S.step < LAST && SKIP(S.step)) S.step++;
+if (S.step > 3 && !S.flight) S.flight = FLIGHTS[0].id;   /* a link straight past the flights takes the included one */
 render();
 
 /* ================= demo · guest / signed-in switch — shared with the other pages ================= */
