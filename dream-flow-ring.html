@@ -1313,6 +1313,9 @@ body.is-guest .sum__dep{display:none}
 /* 7 · the two accordions sit close together */
 .side > .acc + .acc{margin-top:0}
 @media (max-width:1023px){ .grid > .side > .acc + .acc{margin-top:-8px} }
+/* 18.10: tighter between the step, the two folds and the summary: 12 / 10 / 12 px, not 32 */
+@media (max-width:1023px){ .grid > .side > .acc,.grid > .side > .sum{margin-top:-6px!important} .grid > .side > .acc + .acc{margin-top:-8px!important} }
+@media (min-width:1024px){ .side > .acc,.side > .sum{margin-top:0!important} .side > .acc + .acc{margin-top:-4px!important} }
 /* 9 · 10 · rooms: the points stay on one line, the stepper never gets clipped */
 .room .opt__f{flex-wrap:wrap;align-items:center;row-gap:10px}
 .room .pts{white-space:nowrap}
@@ -1413,10 +1416,9 @@ body:not(.is-guest) .sum__tot b{font-size:20px}
 .sd__amt i,.sd__rest i{font:400 13px/1 var(--ds-font-btn);font-style:normal;color:var(--ds-gray)}
 .sd__rest{flex:none;display:flex;align-items:baseline;gap:4px}
 .sd__rest b{font:700 15px/1 var(--ds-font-btn);color:var(--ds-black)}
-.sd__ways{margin:12px 0 0}
-.sd__ways p{margin:0;font:600 13px/1.4 var(--ds-font);color:var(--ds-black)}
-.sd__ways span{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.sd__ways i{font:600 13px/1 var(--ds-font);font-style:normal;color:var(--ds-blue);padding:7px 11px;border-radius:999px;background:var(--ds-light-blue-1,#F0F8FF);border:1px solid rgba(27,94,206,.18);white-space:nowrap}
+.sd__ways{display:flex;align-items:flex-start;gap:8px;margin:12px 0 0;font:400 13px/1.45 var(--ds-font);color:#3A3F4B}
+.sd__ways b{font-weight:700;color:var(--ds-black)}
+.sd__ways svg{flex:none;width:18px;height:18px;margin-top:1px;fill:none;stroke:var(--ds-purple);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
 /* 18.10: the cancellation terms are a list of rules, not of things included: plain bullets */
 .acc ul.acc__terms li{padding-inline-start:16px;position:relative}
@@ -2070,7 +2072,7 @@ function sideHTML() {
   return '<article class="card ev"><div class="ev__img" style="background-image:url(' + EV.img + ')">' + (EV.logo.length ? '<span class="ev__logos">' + EV.logo.map(f => '<img class="ev__logo" src="' + f + '" alt="">').join('') + '</span>' : '') + '</div>'
     + '<div class="ev__body"><h2 class="ev__t">' + EV.name + (EV.city ? ' · ' + EV.city : '') + '</h2>'
     + '<div class="ev__cd" role="timer" aria-label="ספירה לאחור ' + EV.cdLbl + '">' + cdHTML() + '</div>'
-    + '<ul class="ev__meta"><li>' + IC.pin + EV.venue + '</li>' + (EV_DAY ? '<li class="ev__day">' + IC.cal + '<span>' + EV.evLbl + ': <b>' + EV_DAY + '</b></span></li>' : '') + '<li>' + IC.cal + EV.when + '</li></ul></div></article>'
+    + '<ul class="ev__meta"><li>' + IC.pin + EV.venue + '</li>' + (EV_DAY ? '<li class="ev__day">' + IC.cal + '<span>' + EV.evLbl + (EV.ev.includes('–') ? ' בתאריכים ' : ' ב') + '<b>' + EV_DAY + '</b></span></li>' : '') + '<li>' + IC.cal + EV.when + '</li></ul></div></article>'
     /* 18.10: what's included and the change terms come before the summary of the payment */
     + (S.step || FD ? '' : '<details class="card acc"><summary>מה כלול בחבילה</summary><ul><li>כרטיס ל' + EV.kind.slice(1) + ' לפי החבילה</li><li>' + NIGHTS + ' לילות במלון</li><li>טיסות הלוך־חזור ישירות</li><li>כבודה 23 ק״ג + טרולי</li></ul></details>')
     + (S.step ? '' : '<details class="card acc"><summary>תנאי שינוי וביטול</summary><p>כשמזמינים משלמים מקדמה של 20% ממחיר החבילה, ואת היתרה משלימים עד 60 יום לפני היציאה.</p><p class="acc__h"><b>כמה עולה לבטל?</b></p><ul class="acc__terms"><li><b>מיד אחרי ההזמנה:</b> אפשר לבטל לפי חוק הגנת הצרכן, בתנאים שהחוק קובע.</li><li><b>מסוף התקופה שבחוק ועד 60 יום לפני היציאה:</b> דמי הביטול הם המקדמה בלבד (20% ממחיר החבילה).</li><li><b>ב־60 הימים שלפני היציאה:</b> דמי הביטול הם מחיר החבילה המלא (100%).</li></ul></details>')
@@ -2080,7 +2082,7 @@ function sideHTML() {
     + '<div class="sum__dep"><div class="sd__now"><span class="sd__lbl">היום משלמים רק<em>מקדמה של 20%</em></span><span class="sd__amt"><b>' + fmt(dep) + '<small>נק׳</small></b><i>(₪' + fmt(dep) + ')</i></span></div>'   /* points first, ₪ small beside, as in the total */
     +   '<div class="sd__later"><span>את היתרה משלמים עד ' + DUE + '</span><span class="sd__rest"><b>' + fmt(t - dep) + ' נק׳</b><i>(₪' + fmt(t - dep) + ')</i></span></div>'
     /* 18.10: points are a way to pay, not a must: points, money, or both together */
-    +   (isGuest() ? '' : '<div class="sd__ways"><p>לא חייבים לשלם בנקודות. משלמים איך שנוח לכם:</p><span><i>בנקודות</i><i>בכסף</i><i>נקודות + כסף</i></span></div>')
+    +   (isGuest() ? '' : '<p class="sd__ways"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1.2 1.1-2 2.5-2s2.5.8 2.5 2-1.1 1.7-2.5 2-2.5.8-2.5 2 1.1 2 2.5 2 2.5-.8 2.5-2"/></svg><span><b>משלמים בנקודות, בכסף או בשילוב.</b> כל נקודה שווה ₪1.</span></p>')
     +   '<p class="sd__fine">' + IC.info + '<span><b>סכום היתרה (80%)</b> ייקבע לפי שער ההמרה ביום החיוב, ולכן הוא עשוי להשתנות. נעדכן אתכם ב־SMS לפני החיוב.</span></p></div></article>';
 }
 
