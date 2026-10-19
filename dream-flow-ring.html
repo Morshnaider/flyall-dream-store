@@ -23,10 +23,15 @@ document.addEventListener('click', function (e) {
   var q = new URLSearchParams(location.search).get('demo');
   if (q === '1') sessionStorage.setItem('flyall-demo', '1');
   if (q === '0') sessionStorage.removeItem('flyall-demo');
+  /* 18.10: a scenario link sets its case for the visit (?who=guest|user&pts=earn|enough&bnpl=on|off), switches or not */
+  var p = new URLSearchParams(location.search), c = {};
+  try { c = JSON.parse(sessionStorage.getItem('flyall-case') || '{}'); } catch (e) {}
+  ['who', 'pts', 'bnpl'].forEach(function (k) { var v = p.get(k); if (v) c[k] = v; });
+  sessionStorage.setItem('flyall-case', JSON.stringify(c));
   if (!sessionStorage.getItem('flyall-demo')) {
     document.documentElement.classList.add('clean');
-    localStorage.setItem('flyall-who', 'user'); localStorage.setItem('flyall-points', 'earn'); localStorage.setItem('flyall-bnpl', 'on');
-  }
+    localStorage.setItem('flyall-who', c.who || 'user'); localStorage.setItem('flyall-points', c.pts || 'earn'); localStorage.setItem('flyall-bnpl', c.bnpl || 'on');
+  } else ['who', 'pts', 'bnpl'].forEach(function (k) { if (p.get(k)) localStorage.setItem('flyall-' + (k === 'pts' ? 'points' : k), p.get(k)); });
 } catch (e) {} })();
 </script>
 <style>html.clean .who{display:none!important}</style>
@@ -1677,7 +1682,7 @@ body.past1 .rg.open .rg__more svg{transform:rotate(180deg)}
 
 <script>
 /* ================= data ================= */
-const RATE = 0.1;          /* 1 point per ₪10 in the card — demo only, the real formula is still open */
+const RATE = 0.01;         /* 18.10: the card's terms, as in the lobby and the experience: 1% back, a point = ₪1 */
 const HAVE = +(document.querySelector('.fa-points__value')?.textContent || '2000').replace(/[^0-9]/g, '');   /* Anat's balance, after any booking in this visit */
 /* 18.10: the dream comes from the experience page (?ev=…&city=…&a=…&b=…&p=…); without it, Céline Dion in Paris */
 const EV = (() => {
@@ -1704,7 +1709,7 @@ const DATES = EV.a + '–' + EV.b + '.2027';
 const EV_DAY = (e => { if (!e || e.includes('–')) return e ? e + '.2027' : ''; const [x, y] = e.split('.').map(Number);
   return 'יום ' + ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'][new Date(2027, y - 1, x).getDay()] + ', ' + e + '.2027'; })(EV.ev);
 const DUE = (dt => dt.getDate() + '.' + (dt.getMonth() + 1) + '.' + dt.getFullYear())(new Date(EV.at.getTime() - 60 * 864e5));   /* the balance, 60 days before */
-const MONTHS = Math.max(1, Math.round((EV.at - new Date()) / (30.4 * 864e5)));   /* card months until the dream */
+const MONTHS = Math.max(1, Math.round((EV.at.getTime() - 60 * 864e5 - Date.now()) / (30.4 * 864e5)));   /* card months until the balance is charged, 60 days before */
 const BASE = EV.price;     /* per passenger, basic package */
 const NIGHTS_OF = (a, b) => { const d = x => { const [p, q] = x.split('.').map(Number); return new Date(2027, q - 1, p); }; return Math.round((d(b) - d(a)) / 864e5); };
 const STAGE = EV.kind === 'המשחק' ? 'המגרש' : 'הבמה';
@@ -1864,7 +1869,7 @@ const CALC = (() => {
     + '<input class="cal__range" type="range" min="' + MIN + '" max="' + MAX + '" step="500" aria-label="הוצאה חודשית בכרטיס">'
     + '<div class="cal__ends"><span>₪' + fmt(MIN) + '</span><span>₪' + fmt(MAX) + '</span></div>'
     + '<div class="cal__res" aria-live="polite">'
-    +   '<p class="cal__lbl">נקודות עתידיות עד ' + EV.kind + ' · ' + MONTHS + ' חודשים</p>'
+    +   '<p class="cal__lbl">נקודות עתידיות עד חיוב היתרה · ' + MONTHS + ' חודשים</p>'
     +   '<p class="cal__big"><b class="cal__year"></b><small>נק׳</small></p>'
     +   '<p class="cal__eq">1 נק׳ = ₪1</p>'
     +   '<p class="cal__tot"><span>ביחד עם ' + fmt(HAVE) + ' הנקודות הקיימות שלכם</span><b class="cal__all"></b></p>'

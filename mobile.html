@@ -41,8 +41,15 @@ body.is-phone .view{display:none}
   const phone = document.querySelector('.phone'), view = document.querySelector('.view');
   /* the open link is cached for 10 minutes: the site inside always loads fresh, so an update shows on the next visit */
   /* ?demo=1 (or 0) passes on to the site inside: the demo switches are off unless asked for */
-  const demo = new URLSearchParams(location.search).get('demo');
-  phone.querySelector('iframe').src = 'home.html?v=' + Date.now() + (demo ? '&demo=' + demo : '');
+  const Q = new URLSearchParams(location.search), demo = Q.get('demo');
+  /* 18.10: a scenario link opens a page of this site straight away (?start=pov-reels-v2.html#e=3), with its case
+     (who / pts / bnpl) and the page's own settings (ev, a, b, p…) passed on. Only this site's own pages */
+  const st = /^[a-z0-9-]+\.html(\?[^#]*)?(#[\w=.-]*)?$/i.test(Q.get('start') || '') ? Q.get('start') : 'home.html';
+  const [stPath, stHash] = st.split('#'), [stFile, stQuery] = stPath.split('?');
+  const pass = new URLSearchParams(stQuery || '');
+  pass.set('v', Date.now());
+  ['demo', 'who', 'pts', 'bnpl'].forEach(k => { if (Q.get(k)) pass.set(k, Q.get(k)); });
+  phone.querySelector('iframe').src = stFile + '?' + pass + (stHash ? '#' + stHash : '');
   const KEY = 'flyall-view';
   /* a real 390×844 screen inside; centred on the window, and scaled so all of it — frame included — fits with a margin */
   const fit = () => {

@@ -23,10 +23,15 @@ document.addEventListener('click', function (e) {
   var q = new URLSearchParams(location.search).get('demo');
   if (q === '1') sessionStorage.setItem('flyall-demo', '1');
   if (q === '0') sessionStorage.removeItem('flyall-demo');
+  /* 18.10: a scenario link sets its case for the visit (?who=guest|user&pts=earn|enough&bnpl=on|off), switches or not */
+  var p = new URLSearchParams(location.search), c = {};
+  try { c = JSON.parse(sessionStorage.getItem('flyall-case') || '{}'); } catch (e) {}
+  ['who', 'pts', 'bnpl'].forEach(function (k) { var v = p.get(k); if (v) c[k] = v; });
+  sessionStorage.setItem('flyall-case', JSON.stringify(c));
   if (!sessionStorage.getItem('flyall-demo')) {
     document.documentElement.classList.add('clean');
-    localStorage.setItem('flyall-who', 'user'); localStorage.setItem('flyall-points', 'earn'); localStorage.setItem('flyall-bnpl', 'on');
-  }
+    localStorage.setItem('flyall-who', c.who || 'user'); localStorage.setItem('flyall-points', c.pts || 'earn'); localStorage.setItem('flyall-bnpl', c.bnpl || 'on');
+  } else ['who', 'pts', 'bnpl'].forEach(function (k) { if (p.get(k)) localStorage.setItem('flyall-' + (k === 'pts' ? 'points' : k), p.get(k)); });
 } catch (e) {} })();
 </script>
 <style>html.clean .who{display:none!important}</style>
