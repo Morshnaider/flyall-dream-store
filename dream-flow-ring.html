@@ -1796,12 +1796,13 @@ const FLIGHTS = FD && FD.fl ? [{ id: 'f1', up: 0, airline: FD.airline, note: FD.
   { id: 'f2', up: 180, legs: [['LY 325', 'TLV', EV.a.replace('.', '/') + '/27 · 16:10', EV.air, EV.a.replace('.', '/') + '/27 · 20:15', '5h 05m'], ['LY 328', EV.air, EV.b.replace('.', '/') + '/27 · 11:30', 'TLV', EV.b.replace('.', '/') + '/27 · 16:45', '4h 15m']] }
 ];
 const STEPS = ['חבילה', 'מלון', 'חדר', 'טיסה', 'סיכום ותשלום'];
-/* 18.10, per ALP: a step shows only when there's a choice to make. Each hotel is its own package option, so one option
-   means no hotel step; one room variant, no room step. The flight comes with the package: shown in the summary, never a step */
-const SKIP = i => (i === 1 && HOTELS.length < 2) || (i === 2 && ROOMS().length < 2) || i === 3;
+/* 18.10, per ALP: a hotel or room step shows only when there's a choice to make. Each hotel is its own package option, so
+   one option means no hotel step; one room variant, no room step. The flight comes with the package and keeps its own step,
+   to read, as in the rest of the site */
+const SKIP = i => (i === 1 && HOTELS.length < 2) || (i === 2 && ROOMS().length < 2);
 const autoPick = () => { if (HOTELS.length === 1) S.hotel = HOTELS[0].id; if (ROOMS().length === 1) S.room = ROOMS()[0].id; S.flight = 'f1'; };
 const nextLbl = () => { if (S.step >= 3) return NEXT[S.step]; let j = S.step + 1; while (j < 4 && SKIP(j)) j++;
-  return j === 1 ? 'המשך למלון' : j === 2 ? 'המשך לחדר' : 'מעבר להזמנה'; };
+  return j === 1 ? 'המשך למלון' : j === 2 ? 'המשך לחדר' : 'המשך לטיסה'; };
 /* as in Figma: after the flight, step 5 asks who the booking is for, then "מעבר להזמנה" opens the checkout
    (its own three steps: פרטי הזמנה · תשלום · אישור) */
 const NEXT = ['המשך למלון', 'המשך לחדר', 'המשך לטיסה', 'מעבר להזמנה', 'אישור ותשלום', 'חזרה לעמוד הראשי'];
@@ -2207,7 +2208,7 @@ const STEP_UI = [
         + (f.note ? '<p class="pay__fine" style="margin-top:12px">' + IC.info + f.note + '</p>' : '<details class="bag"><summary>פירוט כבודה<span>›</span></summary><p>תיק יד 8 ק״ג, טרולי 8 ק״ג ומזוודה 23 ק״ג לכל נוסע.</p></details>') + '</div></div>')).join('')
       + '</div></div>',
   /* 5 · summary and payment — one step: who it's for, then the payment under it */
-  () => (S.detailsDone ? '<p class="backrow"><a class="back" href="#" data-edit>' + IC.back + 'חזרה לסיכום</a></p>' : STEP_UI[3]() + fdExtrasHTML()) + whoHTML() + (S.detailsDone ? '<div class="paywrap">' + payHTML() + '</div>' : ''),
+  () => (S.detailsDone ? '<p class="backrow"><a class="back" href="#" data-edit>' + IC.back + 'חזרה לסיכום</a></p>' : fdExtrasHTML()) + whoHTML() + (S.detailsDone ? '<div class="paywrap">' + payHTML() + '</div>' : ''),
   /* 6 · confirmed */
   () => {
     const t = total(), dep = Math.round(t * 0.2);
