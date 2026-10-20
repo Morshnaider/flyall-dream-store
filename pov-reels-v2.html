@@ -2759,7 +2759,7 @@ function buildAsk(){
     t.appendChild(holder);
     /* the whole window, arrow included, opens that world's category page */
     t.style.cursor = 'pointer';
-    t.addEventListener('click', () => { location.href = faV('pov-category-v2.html?c=' + c.k); });
+    t.addEventListener('click', () => { location.href = faV('pov-all-v2.html?c=' + c.k);   /* 18.10: one page, on this world's tab */ });
     deck.appendChild(t);
     return t;
   });

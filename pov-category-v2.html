@@ -2,6 +2,12 @@
 <html lang="he" dir="rtl">
 <head>
 <script>
+/* 18.10: the category pages became tabs on "כל החוויות": an old link lands there, on its world */
+(function () { var q = new URLSearchParams(location.search), c = q.get('c'), n = new URLSearchParams();
+  if (c) n.set('c', c); ['demo', 'who', 'pts', 'bnpl'].forEach(function (k) { if (q.get(k)) n.set(k, q.get(k)); });
+  location.replace('pov-all-v2.html' + (String(n) ? '?' + n : '')); })();   /* not #e=: its index was this category's, not the full list's */
+</script>
+<script>
 /* 18.10: the open link is cached for 10 minutes; every move between the prototype's pages asks for a fresh copy,
    so an update shows on the next tap, not ten minutes later */
 window.faV = function (u) {
@@ -58,6 +64,9 @@ body.is-guest .xp__deal .xp__dep .u-only,body:not(.is-guest) .xp__deal .xp__dep 
 .xd-tbc b{color:#FFD27A;font-weight:700}
 .xd-tbc svg{flex:none;width:17px;height:17px;margin-top:1px;fill:none;stroke:#FFD27A;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 
+
+/* 18.10: no "ניקוי הבחירה" under the list's head: the tabs ("הכל") and the filter sheet already undo a choice */
+.seek__reset{display:none!important}
 </style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">

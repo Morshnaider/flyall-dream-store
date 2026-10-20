@@ -68,6 +68,9 @@ body.is-guest .xp__deal .xp__dep .u-only,body:not(.is-guest) .xp__deal .xp__dep 
 .ltabs button.on::after{content:"";position:absolute;inset-inline:0;bottom:-1px;height:3px;border-radius:3px;background:var(--ds-gradient)}
 .ltabs button:focus-visible{outline:2px solid var(--ds-blue,#1B5ECE);outline-offset:2px;border-radius:4px}
 @media (min-width:1024px){ .ltabs{margin:18px 0 0;gap:28px} .ltabs button{font-size:17px} }
+
+/* 18.10: no "ניקוי הבחירה" under the list's head: the tabs ("הכל") and the filter sheet already undo a choice */
+.seek__reset{display:none!important}
 </style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -2373,7 +2376,9 @@ function buildList(){
   const monthName = m => MONTHS[m % 100 - 1];
   const LOGO = {};
   const EMPTY = ['הכל', 'הכל', 'תמיד'];
-  let sel = { f1:null, f2:null, m:null };
+  /* 18.10: one page for every world: ?c=sport|shows|fest opens it on that tab (the lobby's category tiles land here) */
+  const C0 = CATS[new URLSearchParams(location.search).get('c')];
+  let sel = { f1: C0 ? C0.t : null, f2:null, m:null };
   const fits = (d, q, upto) => KEYS.slice(0, upto).every(k =>
     !q[k] || (k === 'f2' ? d.f2.includes(q[k]) : d[k] === q[k]));
   const label = (k, v) => v == null ? EMPTY[KEYS.indexOf(k)] : k === 'm' ? monthName(v) + ' ' + String(v).slice(2, 4) : v;
@@ -2423,6 +2428,9 @@ function buildList(){
     const b = e.target.closest('button'); if (!b) return;
     sel = { ...sel, f1: b.dataset.w || null, f2: null };
     paintSeek(); render();
+    /* the address follows the tab, so a shared link or a step back lands on the same world */
+    const k = Object.keys(CATS).find(x => CATS[x].t === sel.f1), u = new URL(location.href);
+    k ? u.searchParams.set('c', k) : u.searchParams.delete('c'); history.replaceState(null, '', u);
   });
   box.append(head, wtabs, seek, reset, rows);
 
