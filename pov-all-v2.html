@@ -71,6 +71,11 @@ body.is-guest .xp__deal .xp__dep .u-only,body:not(.is-guest) .xp__deal .xp__dep 
 
 /* 18.10: no "ניקוי הבחירה" under the list's head: the tabs ("הכל") and the filter sheet already undo a choice */
 .seek__reset{display:none!important}
+
+/* 18.10: the world tabs at the top, above the title */
+.arc .lead .ltabs{justify-content:center;margin:18px 0 6px;border-bottom:0;max-width:100%}
+@media (max-width:1023px){ .arc .lead .ltabs{justify-content:safe center;margin-inline:-20px;padding-inline:20px;width:calc(100% + 40px)} }
+@media (min-width:1024px){ .arc .lead .ltabs{justify-content:flex-start;margin:22px 0 8px} }
 </style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -2422,8 +2427,18 @@ function buildList(){
   const wtabs = el('div','ltabs', ['הכל'].concat(Object.values(CATS).map(c => c.t)).map((t, i) =>
     '<button type="button" role="tab" data-w="' + (i ? t : '') + '">' + t + '</button>').join(''));
   wtabs.setAttribute('role', 'tablist'); wtabs.setAttribute('aria-label', 'סינון לפי עולם');
-  const paintTabs = () => wtabs.querySelectorAll('button').forEach(b => {
-    const on = (b.dataset.w || null) === sel.f1; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+  const paintTabs = () => {
+    wtabs.querySelectorAll('button').forEach(b => {
+      const on = (b.dataset.w || null) === sel.f1; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+    /* the title and its line are the chosen world's: "ספורט · 5 חוויות · החל מ־5,400 נק׳", not always all of them */
+    const lead = wtabs.closest('.lead'), h = lead && lead.querySelector('h2 b'), sub = lead && lead.querySelector('.lead__sub');
+    if (!h || !sub) return;
+    const pool = ARC.filter(d => !sel.f1 || d.f1 === sel.f1), low = Math.min(...pool.map(d => num(d.pts))).toLocaleString('en-US');
+    h.textContent = sel.f1 || 'כל החוויות';
+    sub.innerHTML = pool.length + ' חוויות<i></i>החל מ־<b>' + low + ' נק׳</b> <small class="ils">(₪' + low + ')</small>';
+    document.title = 'FlyAll — ' + (sel.f1 || 'כל החוויות');
+  };
+  box._paintTabs = paintTabs;
   wtabs.addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     sel = { ...sel, f1: b.dataset.w || null, f2: null };
@@ -2432,7 +2447,8 @@ function buildList(){
     const k = Object.keys(CATS).find(x => CATS[x].t === sel.f1), u = new URL(location.href);
     k ? u.searchParams.set('c', k) : u.searchParams.delete('c'); history.replaceState(null, '', u);
   });
-  box.append(head, wtabs, seek, reset, rows);
+  box.append(head, seek, reset, rows);
+  box._tabs = wtabs;   /* 18.10: mounted at the top of the page, above the title (see mount) */
 
   /* ---- the sheet ---- */
   const sheet = el('div','sheet',
@@ -3642,6 +3658,9 @@ const arc = buildArc(), list = buildList(), foot = buildFoot();
    the wrapper is display:contents and the page stacks as before */
 const split = el('div','split');
 split.append(arc, list, list._player);
+/* 18.10: the world tabs at the top of the page, above the title, which follows them */
+arc.querySelector('.lead h2').before(list._tabs);
+list._paintTabs();
 stage.appendChild(split);
 stage.appendChild(foot);
 requestAnimationFrame(() => { arc._shape && arc._shape(); });
