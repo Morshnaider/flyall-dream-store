@@ -47,22 +47,15 @@ document.addEventListener('click', function (e) {
 .fl__up{display:inline-flex;align-items:baseline;gap:4px}
 .fl__up small{font:400 12px/1 var(--ds-font);color:var(--ds-gray)}
 
-/* 18.10: what's included, grouped, for a few items or many */
-.inc{display:grid;gap:10px;grid-template-columns:1fr}
-.inc__g{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:var(--ds-light-blue-1,#F0F8FF)}
-.inc__ic{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(27,94,206,.12)}
-.inc__ic svg{width:18px;height:18px;fill:none;stroke:var(--ds-purple);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.inc__b{min-width:0}
-.inc__b b{display:block;margin:7px 0 6px;font:700 14px/1.2 var(--ds-font);color:var(--ds-black)}
-.inc ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
-.inc li{display:flex;gap:7px;align-items:flex-start;font:400 14px/1.4 var(--ds-font);color:#3A3F4B}
+/* 18.10: what's included: a plain checklist, folding past 6 */
+.inc ul{margin:0;padding:0;list-style:none;display:grid;gap:8px 20px;grid-template-columns:1fr}
+.inc li{display:flex;gap:8px;align-items:flex-start;font:400 14px/1.45 var(--ds-font);color:#3A3F4B}
 .inc li::before,.acc .inc li::before{content:none;display:none}
-.inc li svg{flex:none;width:15px;height:15px;margin-top:2px;fill:none;stroke:var(--ok);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.inc li svg{flex:none;width:16px;height:16px;margin-top:2px;fill:none;stroke:var(--ok);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .inc--fold:not(.inc--all) .inc__more{display:none}
-.inc--fold:not(.inc--all) .inc__g:not(:has(li:not(.inc__more))){display:none}
-.inc__all{justify-self:start;margin-top:2px;padding:0;border:0;background:none;color:var(--ds-blue);font:700 14px/1.3 var(--ds-font);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.acc__in{padding:0 16px 16px}
-@media (min-width:1024px){ .fdp .inc{grid-template-columns:1fr 1fr} .fdp .inc__all{grid-column:1 / -1} }
+.inc__all{margin-top:10px;padding:0;border:0;background:none;color:var(--ds-blue);font:700 14px/1.3 var(--ds-font);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.acc__in{padding:0 20px 18px}
+@media (min-width:1024px){ .fdp .inc ul{grid-template-columns:1fr 1fr} }
 </style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -2201,24 +2194,15 @@ function payHTML() {
       + '<label class="terms"><input type="checkbox" data-terms' + (S.terms ? ' checked' : '') + '><span>קראתי ואני מאשר/ת את <a href="#">תנאי השימוש</a> ואת <a href="#">מדיניות הביטול</a></span></label></div>';
   }
 
-/* 18.10: what a package includes, for a few items or many: grouped by kind, each group with its icon and its ticks,
-   two columns where there's room; past INC_MAX items the rest fold behind "הצגת כל X הפריטים" */
-const INC_MAX = 8;
-const INC_GROUPS = [
-  ['טיסות', /טיסה|טיסות|כבודה|טרולי|מזוודה|תיק יד/, '<path d="M2.5 13.5 21 6l-3.5 9.5-5-2-3 4-1-5.5z"/>'],
-  ['לינה', /לילות|מלון|לינה|ארוחת|פנסיון/, '<path d="M3 18V8M3 14h18v4M21 14v-3a3 3 0 0 0-3-3h-7v6"/><circle cx="7" cy="11" r="1.8"/>'],
-  ['כרטיסים', /כרטיס|סקי|צמיד|כניסה/, '<path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/>'],
-  ['בשטח', /העבר|נציג|שאטל|ליווי/, '<path d="M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>'],
-  ['ועוד', /./, '<path d="M12 3l2.5 5.5L20 9l-4.2 3.9L17 19l-5-3-5 3 1.2-6.1L4 9l5.5-.5z"/>']
-];
+/* 18.10: what a package includes, as Strapi holds it: a flat list of lines the editor types (component
+   dream-store.content-line, one line each, no category), so no grouping here. A plain checklist; two columns where
+   there's room; past INC_MAX lines the rest fold behind "הצגת כל X הפריטים" */
+const INC_MAX = 6;
 function inclHTML(items) {
-  const groups = INC_GROUPS.map(([t, re, ic]) => ({ t, ic, list: [] }));
-  items.forEach(x => groups[INC_GROUPS.findIndex(([, re]) => re.test(x))].list.push(x));
-  let n = 0;
-  const html = groups.filter(g => g.list.length).map(g => '<div class="inc__g"><span class="inc__ic"><svg viewBox="0 0 24 24" aria-hidden="true">' + g.ic + '</svg></span>'
-    + '<div class="inc__b"><b>' + g.t + '</b><ul>' + g.list.map(x => '<li' + (++n > INC_MAX ? ' class="inc__more"' : '') + '>' + IC.check + '<span>' + x + '</span></li>').join('') + '</ul></div></div>').join('');
-  return '<div class="inc' + (items.length > INC_MAX ? ' inc--fold' : '') + '">' + html
-    + (items.length > INC_MAX ? '<button class="inc__all" type="button" data-incall aria-expanded="false">הצגת כל ' + items.length + ' הפריטים</button>' : '') + '</div>';
+  const fold = items.length > INC_MAX;
+  return '<div class="inc' + (fold ? ' inc--fold' : '') + '"><ul>'
+    + items.map((x, i) => '<li' + (i >= INC_MAX ? ' class="inc__more"' : '') + '>' + IC.check + '<span>' + x + '</span></li>').join('') + '</ul>'
+    + (fold ? '<button class="inc__all" type="button" data-incall aria-expanded="false">הצגת כל ' + items.length + ' הפריטים</button>' : '') + '</div>';
 }
 /* 18.10: the festival's package: nothing to pick, what it includes; and a word when no room fits the party */
 const fdPackHTML = () => '<div class="card fdp"><h2>החבילה שלכם</h2><p class="sub">' + NIGHTS + ' לילות, ' + DATES + '</p>'
