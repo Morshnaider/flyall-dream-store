@@ -57,6 +57,18 @@ body.is-guest .xp__deal .xp__dep .u-only,body:not(.is-guest) .xp__deal .xp__dep 
   font:400 13px/1.45 var(--ds-font);color:rgba(255,255,255,.88)}
 .xd-tbc b{color:#FFD27A;font-weight:700}
 .xd-tbc svg{flex:none;width:17px;height:17px;margin-top:1px;fill:none;stroke:#FFD27A;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* 18.10: the category switch on the list pages */
+.cats{display:flex;justify-content:center;gap:8px;margin:18px 0 0;padding:2px 2px 4px;overflow-x:auto;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cats__i{flex:none;display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 15px;border-radius:19px;background:#fff;border:1px solid #E6E3F1;
+  color:var(--ink,#040F21);font:600 15px/1 var(--pf, sans-serif);text-decoration:none;white-space:nowrap;transition:border-color .2s,box-shadow .2s}
+.cats__i small{font:600 12px/1 var(--pf, sans-serif);color:var(--ds-gray,#818790)}
+a.cats__i:hover{border-color:#C9A6FF;box-shadow:0 4px 14px rgba(130,74,234,.14)}
+a.cats__i:focus-visible{outline:2px solid var(--ds-blue,#1B5ECE);outline-offset:2px}
+.cats__i.on{background:var(--ds-gradient);border-color:transparent;color:#fff}
+.cats__i.on small{color:rgba(255,255,255,.85)}
+@media (max-width:1023px){ .cats{justify-content:flex-start;max-width:100%;padding-inline:20px;box-sizing:border-box} }
 </style>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -2269,6 +2281,14 @@ function cta(cls){
 }
 
 /* ================= HERO · the category's title, straight into the list ================= */
+/* 18.10: the way between the list pages: all experiences and each category, the current one marked */
+const catNav = cur => '<nav class="cats" aria-label="קטגוריות">'
+  + [['all', 'כל החוויות', Object.values(CATS).reduce((a, c) => a + c.n, 0), 'pov-all-v2.html']]
+    .concat(Object.entries(CATS).map(([k, c]) => [k, c.t, c.n, 'pov-category-v2.html?c=' + k]))
+    .map(([k, t, n, href]) => k === cur
+      ? '<span class="cats__i on" aria-current="page">' + t + '<small>' + n + '</small></span>'
+      : '<a class="cats__i" href="' + href + '">' + t + '<small>' + n + '</small></a>').join('')
+  + '</nav>';
 function buildArc(){
   const root = el('div','arc');
   const FROM = Math.min(...ARC.map(d => num(d.pts))).toLocaleString('en-US');
@@ -2278,7 +2298,7 @@ function buildArc(){
       'חזרה לעמוד הראשי</a>' +
     '<h2><b>'+CAT.t+'</b></h2>'+
     '<p class="lead__sub">'+CAT.n+' חוויות<i></i>'+
-      'החל מ־<b>'+FROM+' נק׳</b> <small class="ils">(₪'+FROM+')</small></p>');
+      'החל מ־<b>'+FROM+' נק׳</b> <small class="ils">(₪'+FROM+')</small></p>' + catNav('all'));
   /* our light green confetti, out of the ring */
   const lmeConfetti = from => {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches || !from) return;
@@ -2328,7 +2348,7 @@ function buildArc(){
     '<a href="#join">הצטרף לכרטיס FlyAll<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg></a>');
   lead.appendChild(why);
   root.appendChild(lead);
-  enter(root, [...lead.querySelectorAll('h2,.lead__sub,.lead__me,.lead__why')], 110);
+  enter(root, [...lead.querySelectorAll('h2,.lead__sub,.cats,.lead__me,.lead__why')], 110);
 
   root._shape = () => {};          /* no carousel here any more — the reel still calls these */
   root._arm = () => {};
