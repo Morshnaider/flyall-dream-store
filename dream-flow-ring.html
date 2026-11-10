@@ -1284,6 +1284,22 @@ body.is-guest .sum__dep{display:none}
 .act .ds-btn.act__back{box-shadow:none}
 .booked__ic svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .booked h2{font-size:24px}
+.bk-steps{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:0;text-align:right}
+.bk-steps li{position:relative;display:flex;align-items:flex-start;gap:12px;padding:0 0 16px;font:400 14px/1.35 var(--ds-font);color:var(--ds-gray)}
+.bk-steps li:last-child{padding-bottom:0}
+.bk-steps li:not(:last-child)::after{content:"";position:absolute;right:13px;top:28px;bottom:2px;width:2px;background:var(--line)}
+.bk-steps li.is-done::after{background:var(--ds-gradient)}
+.bk-steps i{flex:none;position:relative;z-index:1;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line);background:#fff}
+.bk-steps i svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.bk-steps .is-done i{border:0;background:var(--ds-gradient);color:#fff}
+.bk-steps .is-now i{border-color:var(--ds-purple);color:var(--ds-purple);background:#F4EEFF}
+.bk-steps span{display:flex;flex-direction:column;gap:2px;padding-top:4px}
+.bk-steps b{font-weight:600}
+.bk-steps .is-done b,.bk-steps .is-now b{color:var(--ink)}
+.bk-steps small{font:400 12px/1.35 var(--ds-font-btn);color:var(--ds-gray)}
+.booked .bk-steps{opacity:0;transform:translateY(8px)}
+.booked.landed .bk-steps,.booked.still .bk-steps{animation:bkRise .45s ease-out .32s forwards}
+@media (min-width:1024px){.bk-steps li{font-size:15px}}
 .booked__list{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:10px;text-align:right}
 .booked__list li{display:flex;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;background:var(--soft);font:400 14px/1.35 var(--ds-font)}
 .booked__list b{flex:none;text-align:left;color:var(--ds-purple)}   /* the when, on the left */
@@ -2191,6 +2207,7 @@ function payHTML() {
       + '<div class="two"><div><label for="exp">תוקף</label><input id="exp" placeholder="MM/YY" autocomplete="off"></div><div><label for="cvv">CVV</label><input id="cvv" inputmode="numeric" placeholder="123" autocomplete="off"></div></div>'
       + '<div><label for="nm">שם בעל הכרטיס</label><input id="nm" placeholder="' + (g ? 'דניאל לוי' : 'ענת ישראלי') + '" autocomplete="off" style="direction:rtl"></div></div>'
       + '<p class="secure">' + IC.lock + 'קנייה מאובטחת ב־FlyAll · תקן PCI DSS</p>'
+      + '<p class="due__why">' + IC.info + '<span>אחרי התשלום נציג מאשר את ההזמנה מול הספק, ותקבלו אישור סופי.</span></p>'
       + '<label class="terms"><input type="checkbox" data-terms' + (S.terms ? ' checked' : '') + '><span>קראתי ואני מאשר/ת את <a href="#">תנאי השימוש</a> ואת <a href="#">מדיניות הביטול</a></span></label></div>';
   }
 
@@ -2270,8 +2287,14 @@ const STEP_UI = [
       + '<svg class="booked__sky" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bkG" gradientUnits="userSpaceOnUse" x1="380" y1="0" x2="20" y2="0"><stop offset="0" stop-color="#1B5ECE"/><stop offset=".5" stop-color="#824AEA"/><stop offset="1" stop-color="#F63DE4"/></linearGradient></defs>'
       + '<path class="booked__arc" d="M380 104 C 300 0, 100 0, 20 104"/></svg>'
       + '<span class="booked__plane" aria-hidden="true"><svg><use href="#plane"/></svg></span>'
-      + '<span class="booked__ic">' + IC.check + '</span><h2>' + (isGuest() ? (S.f.fn || 'דניאל') : 'ענת') + ', החלום מוזמן!</h2>'
-      + '<p class="sub">הזמנה מס׳ FA-270514 · אישור נשלח ל־' + (S.f.mail || 'המייל שלכם') + '</p>'
+      + '<span class="booked__ic">' + IC.check + '</span><h2>' + (isGuest() ? (S.f.fn || 'דניאל') : 'ענת') + ', קיבלנו את ההזמנה!</h2>'
+      + '<p class="sub">הזמנה מס׳ FA-270514 · ' + (S.pay === 'dep' ? 'המקדמה שולמה' : 'התשלום התקבל') + '</p>'
+      /* 10.11: every package is confirmed by an Issta agent after payment, so the page says where the order stands */
+      + '<ol class="bk-steps" aria-label="מה קורה עכשיו">'
+      +   '<li class="is-done"><i>' + IC.check + '</i><span><b>התשלום התקבל</b></span></li>'
+      +   '<li class="is-now"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></i><span><b>נציג מאשר את ההזמנה מול הספק</b><small>אין צורך לשלם שוב או לעשות דבר</small></span></li>'
+      +   '<li><i></i><span><b>תקבלו אישור סופי על ההזמנה</b></span></li>'
+      + '</ol>'
       + '<ul class="booked__list"><li><span>' + (S.pay === 'dep' ? 'מקדמה של ' + fmt(dep) + ' נק׳' : fmt(t) + ' נק׳, התשלום המלא') + '</span><b>שולם היום</b></li>'
       + (S.pay === 'dep' ? '<li><span>היתרה של ' + fmt(t - dep) + ' נק׳, מנקודות עתידיות ובכסף</span><b>עד ' + DUE + '</b></li>' : '')
       + '<li><span>הכרטיסים ל' + EV.kind.slice(1) + ' יישלחו לכתובת המייל שלכם</span><b>7 ימים לפני</b></li></ul>'
