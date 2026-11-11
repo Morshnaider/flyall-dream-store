@@ -2292,10 +2292,10 @@ const STEP_UI = [
       /* 10.11: every package is confirmed by an Issta agent after payment, so the page says where the order stands */
       + '<ol class="bk-steps" aria-label="מה קורה עכשיו">'
       +   '<li class="is-done"><i>' + IC.check + '</i><span><b>ההזמנה התקבלה</b></span></li>'
-      +   '<li class="is-now"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></i><span><b>ההזמנה תאושר סופית תוך 48 שעות</b><small>בדרך כלל זה לוקח פחות. אין צורך לעשות דבר עד אז</small></span></li>'
+      +   '<li class="is-now"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></i><span><b>ההזמנה תאושר סופית תוך 48 שעות</b><small>בדרך כלל זה לוקח פחות. עד אז לא תחויבו</small></span></li>'
       +   '<li><i></i><span><b>' + (S.pay === 'dep' ? 'המקדמה תחויב' : 'התשלום יחויב') + ' ונשלח לכם אישור ברגע שההזמנה תאושר</b></span></li>'
       + '</ol>'
-      + '<ul class="booked__list"><li><span>' + (S.pay === 'dep' ? 'מקדמה של ' + fmt(dep) + ' נק׳' : fmt(t) + ' נק׳, התשלום המלא') + '</span><b>אחרי האישור</b></li>'
+      + '<ul class="booked__list"><li><span>' + (S.pay === 'dep' ? 'מקדמה של ' + fmt(dep) + ' נק׳' : fmt(t) + ' נק׳, התשלום המלא') + '</span><b>רק אחרי האישור</b></li>'
       + (S.pay === 'dep' ? '<li><span>היתרה של ' + fmt(t - dep) + ' נק׳, מנקודות עתידיות ובכסף</span><b>עד ' + DUE + '</b></li>' : '')
       + '<li><span>הכרטיסים ל' + EV.kind.slice(1) + ' יישלחו לכתובת המייל שלכם</span><b>7 ימים לפני</b></li></ul>'
       /* 18.10: what comes next: the trip in the calendar, and the booking in the personal area */
